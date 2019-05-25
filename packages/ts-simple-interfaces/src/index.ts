@@ -4,6 +4,10 @@
 
 /**
  * An interface that presents a method for publishing a message
+ *
+ * Implementations of this interface are expected to specify a valid type for
+ * the msg parameter. This allows implementations to choose their own valid message
+ * formats.
  */
 export interface SimplePublisherInterface {
   publish: (stream: string, msg: unknown) => Promise<void>;
@@ -13,10 +17,37 @@ export interface SimplePublisherInterface {
 /**
  * An interface that presents a method for subscribing to a message stream with optional
  * routing keys.
+ *
+ * In AMQP paradigm, 'stream' would be the exchange, while routingKey would be something
+ * like 'app.created.users'.
+ *
+ * Note that in most cases, implementations of this interface will likely implement
+ * some sort of EventEmitter behavior as well.
  */
 export interface SimpleSubscriberInterface {
-  subscribe: (stream: string, routingKeys?: string[]) => Promise<void>;
+  subscribe: (
+    stream: string,
+    routingKeys?: string[]
+  ) => Promise<SimpleSubscriptionInterface>;
   close: () => void;
+}
+
+/**
+ * An interface describe an event subscription
+ *
+ * This is basically a very small subset of node's native EventEmitter interface, meaning
+ * you can implement the interface by simply extending EventEmitter if you'd like.
+ */
+export interface SimpleSubscriptionInterface {
+  on: (
+    event: string | symbol,
+    listener: (routingKey: string, msg: unknown) => void
+  ) => this;
+  removeListener: (
+    event: string | symbol,
+    listener: (routingKey: string, msg: unknown) => void
+  ) => this;
+  removeAllListeners: (event?: string | symbol) => this;
 }
 
 /**
@@ -28,16 +59,66 @@ export interface SimplePubSubInterface extends SimplePublisherInterface, SimpleS
 
 
 /*****************************************************
- * Database
+ * Datasource
  *****************************************************/
 
-export interface SimpleSqlDbInterface {
-  query: (query: string, params?: Array<string | number | boolean | Buffer | Date>) => Promise<SimpleSqlResponseInterface>;
-  close: () => void;
+/**
+ * A SimpleDatasource is imagined to be a generic, CRUD-enabled I/O layer.
+ *
+ * This may be a REST API, a SQL database, a document store, etc. - it's just
+ * anything that you can save something to and retrieve something from.
+ */
+export interface SimpleDatasourceInterface {
+  /**
+   * `get` is meant to accept a structured DSL query serialized to string. This may
+   * be a human-readable string, such as `email = 'me@myself.com' and active = true`,
+   * or it may be a JSON-serialized DSL query such as those defined by the
+   * [dsl-queries](https://www.npmjs.com/package/@openfinance/dsl-queries) package.
+   *
+   * Either way, this function is to return at least a simple dataset interface,
+   * and may return something more complex depending on your implementation.
+   */
+  get: (query: string) => Promise<SimpleDatasetInterface>;
+
+  /**
+   * Save is intended to be used for both creation and update. Some people prefer to use
+   * complex Resource objects that offer interesting features like change tracking, etc.,
+   * while others prefer simpler objects that act only as value stores. This interface
+   * allows you to use anything, so long as you return the same.
+   *
+   * The second argument, "force", is a flag that allows you to either overwrite all fields
+   * with the currently specified values, or just send changed fields. A value of "true"
+   * translates roughly to a `PUT` request, while a value of "false" may translate to either
+   * a `POST` or a `PATCH` request. Note that implementations of this interface should make
+   * their own decisions about how to handle resources that do or don't already have assigned
+   * IDs.
+   */
+  save: <T = unknown>(resource: T, force: boolean) => Promise<T>;
+
+  /**
+   * Should accept the ID of a resource to delete.
+   */
+  delete: (resourceId: string) => Promise<void>;
 }
 
-export interface SimpleSqlResponseInterface {
-  readonly rows: unknown[];
+/**
+ * A SimpleDataset is anything with rows of data.
+ */
+export interface SimpleDatasetInterface {
+  rows: Array<unknown>;
+}
+
+/**
+ * While any SQL datasource may be easily implemented as a SimpleDatasource, they may also
+ * be implemented more specifically as a general SimpleSqlDbInterface. This interface is
+ * intended to help unify the various implementations of SQL databases out in the wild, such
+ * that they may be more plug-and-playable.
+ */
+export interface SimpleSqlDbInterface {
+  query: (query: string, params?: Array<string | number | boolean | Buffer | Date>) => Promise<SimpleSqlResponseInterface>;
+}
+
+export interface SimpleSqlResponseInterface extends SimpleDatasetInterface {
   readonly affectedRows: number|null;
 }
 
@@ -52,6 +133,11 @@ export type LogMethod = (level: string, message: string, ...meta: any[]) => Simp
 
 export type LeveledLogMethod = (message: string, ...meta: any[]) => SimpleLoggerInterface;
 
+/**
+ * There is a lot of value in standardizing around syslog error levels. Thus, this
+ * SimpleLoggerInterface defines these methods explicitly. Different loggers may implement
+ * other levels (for whatever reason) if they must.
+ */
 export interface SimpleLoggerInterface {
   log: LogMethod;
   debug: LeveledLogMethod;
@@ -64,134 +150,4 @@ export interface SimpleLoggerInterface {
   emergency: LeveledLogMethod;
 }
 
-
-
-
-/*********************************************************
- * Errors
- *********************************************************/
-
-/**
- * HTMLError is a base class that provides common attributes (name and status, in addition
- * to the standard message) that allow it to be consumed directly by error handlers and
- * converted into useful HTTP errors.
- *
- * In addition, it provides strings that may be set either statically or at runtime to
- * aid in logging.
- *
- * Calling `log` on such an error, and passing it a `SimpleLoggerInterface`, will case it
- * to dump any information it has to the appropriate log levels.
- */
-export class HTTPError extends Error {
-  public readonly name: string = "InternalServerError";
-  public readonly loggable: boolean = true;
-  public readonly status: 400|401|402|403|404|406|409|415|429|500|501|502|503 = 500;
-
-  public debug: string|null = null;
-  public info: string|null = null;
-  public notice: string|null = null;
-  public warning: string|null = null;
-  public error: string|null = null;
-  public alert: string|null = null;
-  public critical: string|null = null;
-  public emergency: string|null = null;
-
-  public log(logger: SimpleLoggerInterface): void {
-    if (this.emergency) {
-      logger.emergency(this.emergency);
-    }
-    if (this.critical) {
-      logger.critical(this.critical);
-    }
-    if (this.alert) {
-      logger.alert(this.alert);
-    }
-    if (this.error) {
-      logger.error(this.error);
-    }
-    if (this.warning) {
-      logger.warning(this.warning);
-    }
-    if (this.notice) {
-      logger.notice(this.notice);
-    }
-    if (this.info) {
-      logger.info(this.info);
-    }
-    if (this.debug) {
-      logger.debug(this.debug);
-    }
-
-    const stack = (this as NodeJS.ErrnoException).stack;
-    if (typeof stack !== "undefined") {
-      logger.debug(stack);
-    }
-  }
-}
-
-export class BadRequestError extends HTTPError {
-  public readonly name: string = "BadRequest";
-  public readonly status = 400;
-}
-
-export class UnauthorizedError extends HTTPError {
-  public readonly name = "Unauthorized";
-  public readonly status = 401;
-}
-
-export class PaymentRequiredError extends HTTPError {
-  public readonly name = "PaymentRequired";
-  public readonly status = 402;
-}
-
-export class ForbiddenError extends HTTPError {
-  public readonly name = "Forbidden";
-  public readonly status = 403;
-}
-
-export class NotFoundError extends HTTPError {
-  public readonly name = "NotFound";
-  public readonly status = 404;
-}
-
-export class NotAcceptableError extends HTTPError {
-  public readonly name = "NotAcceptable";
-  public readonly status = 406;
-}
-
-export class ConflictError extends HTTPError {
-  public readonly name = "Conflict";
-  public readonly status = 409;
-}
-
-export class UnsupportedMediaTypeError extends HTTPError {
-  public readonly name = "UnsupportedMediaType";
-  public readonly status = 415;
-}
-
-export class TooManyRequestsError extends HTTPError {
-  public readonly name = "TooManyRequests";
-  public readonly status = 429;
-}
-
-export class InternalServerError extends HTTPError {
-  public readonly name = "InternalServerError";
-  public readonly status = 500;
-}
-
-export class NotImplementedError extends HTTPError {
-  public readonly name = "NotImplemented";
-  public readonly status = 501;
-}
-
-export class BadGatewayError extends HTTPError {
-  public readonly name = "BadGateway";
-  public readonly status = 502;
-}
-
-export class ServiceUnavailableError extends HTTPError {
-  public readonly name = "ServiceUnavailable";
-  public readonly status = 503;
-}
-
-
+export * from "@openfinance/http-errors";

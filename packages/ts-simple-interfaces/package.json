@@ -17,7 +17,9 @@
     "type": "git",
     "url": "https://github.com/kael-shipman/ts-simple-interfaces.git"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@openfinance/http-errors": "^1.1.0"
+  },
   "devDependencies": {
     "@types/node": "^10.0"
   }
