@@ -10,8 +10,16 @@
  * formats.
  */
 export interface SimplePublisherInterface {
-  publish: (stream: string, msg: unknown) => Promise<void>;
-  close: () => void;
+  /**
+   * Publish a message to a stream.
+   *
+   * "stream" is the name of a message channel, and is based largely on AMQP's concept
+   * of an "exchange". The idea is that you publish a message to a named stream, and
+   * it is the stream's job to then route the message. The `msg` value should carry
+   * all necessary information for your implementation of the publisher to specify
+   * the correct routing parameters.
+   */
+  publish: (stream: string, msg: unknown, options?: unknown) => Promise<void>;
 }
 
 /**
@@ -26,14 +34,14 @@ export interface SimplePublisherInterface {
  */
 export interface SimpleSubscriberInterface {
   subscribe: (
-    stream: string,
-    routingKeys?: string[]
+    streams: Array<string>,
+    routingKeys?: string[],
+    options?: unknown
   ) => Promise<SimpleSubscriptionInterface>;
-  close: () => void;
 }
 
 /**
- * An interface describe an event subscription
+ * An interface describing an event subscription
  *
  * This is basically a very small subset of node's native EventEmitter interface, meaning
  * you can implement the interface by simply extending EventEmitter if you'd like.
