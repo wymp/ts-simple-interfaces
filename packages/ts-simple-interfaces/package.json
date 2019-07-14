@@ -1,5 +1,5 @@
 {
-  "name": "simple-interfaces",
+  "name": "ts-simple-interfaces",
   "version": "1.0.0",
   "description": "This library attempts to define a set of simplified interfaces for typescript that are compatible with common tools in the ecosystem.",
   "author": "Kael Shipman<kael.shipman@gmail.com>",
@@ -21,6 +21,6 @@
     "@openfinance/http-errors": "^1.1.0"
   },
   "devDependencies": {
-    "@types/node": "^10.0"
+    "@types/node": "^10.14.12"
   }
 }

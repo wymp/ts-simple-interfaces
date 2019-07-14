@@ -86,7 +86,7 @@ export interface SimpleDatasourceInterface {
    * Either way, this function is to return at least a simple dataset interface,
    * and may return something more complex depending on your implementation.
    */
-  get: (query: string) => Promise<SimpleDatasetInterface>;
+  get: <T extends unknown>(query: string) => Promise<SimpleDatasetInterface<T>>;
 
   /**
    * Save is intended to be used for both creation and update. Some people prefer to use
@@ -101,7 +101,7 @@ export interface SimpleDatasourceInterface {
    * their own decisions about how to handle resources that do or don't already have assigned
    * IDs.
    */
-  save: <T = unknown>(resource: T, force: boolean) => Promise<T>;
+  save: <T = unknown>(resource: Partial<T>, force: boolean) => Promise<T>;
 
   /**
    * Should accept the ID of a resource to delete.
@@ -112,8 +112,8 @@ export interface SimpleDatasourceInterface {
 /**
  * A SimpleDataset is anything with rows of data.
  */
-export interface SimpleDatasetInterface {
-  rows: Array<unknown>;
+export interface SimpleDatasetInterface<T extends unknown> {
+  rows: Array<T>;
 }
 
 /**
@@ -123,11 +123,52 @@ export interface SimpleDatasetInterface {
  * that they may be more plug-and-playable.
  */
 export interface SimpleSqlDbInterface {
-  query: (query: string, params?: Array<string | number | boolean | Buffer | Date>) => Promise<SimpleSqlResponseInterface>;
+  query: <T extends unknown>(query: string, params?: Array<string | number | boolean | Buffer | Date>) => Promise<SimpleSqlResponseInterface<T>>;
 }
 
-export interface SimpleSqlResponseInterface extends SimpleDatasetInterface {
+export interface SimpleSqlResponseInterface<T extends unknown> extends SimpleDatasetInterface<T> {
   readonly affectedRows: number|null;
+}
+
+
+
+/****************************************************
+ * HTTP
+ ***************************************************/
+
+/**
+ * A simple HTTP Request config object (reduced clone of AxiosRequestConfig)
+ */
+export interface HttpRequestConfig {
+  url?: string;
+  method?: string;
+  headers?: any;
+  params?: any;
+  data?: any;
+  timeout?: number;
+  maxRedirects?: number;
+  throwErrors?: boolean;
+}
+
+/**
+ * A simple HTTP Response interface (clone of AxiosResponse)
+ */
+export interface HttpResponse<T = any>  {
+  data: T;
+  status: number;
+  headers: any;
+  config: HttpRequestConfig;
+}
+
+/**
+ * This defines a simple HTTP interface which can be implemented in-house if
+ * a hard dependency on axios is undesirable
+ *
+ * It should throw an HttpError (see [@openfinance/http-errors](https://npmjs.com/@openfinance/http-errors))
+ * on status codes >= 400.
+ */
+export interface HttpInterface {
+    request: <T = any>(config: HttpRequestConfig) => Promise<HttpResponse<T>>;
 }
 
 

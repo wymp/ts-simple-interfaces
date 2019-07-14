@@ -16,14 +16,18 @@ less flexible, more difficult to test, and more difficult to migrate to new tech
 
 Another issue is that Winston's `LoggerInterface` is defined in the library itself, meaning that
 if you want to use that `LoggerInterface`, you have to depend on the whole Winston package. This
-  isn't technically a huge deal, but it also tends to hamper the responsible specification of
-  general interfaces that are independent of any single project.
+isn't technically a huge deal, but it also tends to hamper the responsible specification of
+general interfaces that are independent of any single project.
 
 As an added convenience, this library attempts to define useful test classes that implement these
 interfaces, such that you can simply instantiate them in your unit tests and gain functionality
 that's immediately useful to unit testing. For example, you can instantiate a `SimpleMockSqlDb`
 that implements `SimpleSqlDbInterface` and gives you the ability to easily analyze query requests
 and define responses.
+
+(Note that the testing classes indicated above are being developed
+[here](https://github.com/kael-shipman/ts-simple-interfaces/tree/master/packages/ts-simple-interfaces-testing)
+and may not be usable yet. PRs welcome.)
 
 
 ## Usage
@@ -32,7 +36,7 @@ To use this library, just list it as a dependency[1] and then define classes tha
 these interfaces. For example:
 
 ```ts
-// src/Datasource.ts
+// src/MyDatasource.ts
 import { SimpleDatasourceInterface } from "simple-interfaces";
 
 export class MyDatasource implements SimpleDataInterface {
