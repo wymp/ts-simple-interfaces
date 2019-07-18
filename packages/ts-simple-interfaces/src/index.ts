@@ -139,8 +139,9 @@ export interface SimpleSqlResponseInterface<T extends unknown> extends SimpleDat
 /**
  * A simple HTTP Request config object (reduced clone of AxiosRequestConfig)
  */
-export interface HttpRequestConfig {
+export interface SimpleHttpRequestConfig {
   url?: string;
+  baseURL?: string;
   method?: string;
   headers?: any;
   params?: any;
@@ -153,11 +154,11 @@ export interface HttpRequestConfig {
 /**
  * A simple HTTP Response interface (clone of AxiosResponse)
  */
-export interface HttpResponse<T = any>  {
+export interface SimpleHttpResponseInterface<T = any>  {
   data: T;
   status: number;
   headers: any;
-  config: HttpRequestConfig;
+  config: SimpleHttpRequestConfig;
 }
 
 /**
@@ -167,8 +168,8 @@ export interface HttpResponse<T = any>  {
  * It should throw an HttpError (see [@openfinance/http-errors](https://npmjs.com/@openfinance/http-errors))
  * on status codes >= 400.
  */
-export interface HttpInterface {
-    request: <T = any>(config: HttpRequestConfig) => Promise<HttpResponse<T>>;
+export interface SimpleHttpClientInterface {
+  request: <T = any>(config: SimpleHttpRequestConfig) => Promise<SimpleHttpResponseInterface<T>>;
 }
 
 
@@ -178,9 +179,9 @@ export interface HttpInterface {
  * Logging
  * **************************************************/
 
-export type LogMethod = (level: string, message: string, ...meta: any[]) => SimpleLoggerInterface;
+export type SimpleLogMethod = (level: string, message: string, ...meta: any[]) => SimpleLoggerInterface;
 
-export type LeveledLogMethod = (message: string, ...meta: any[]) => SimpleLoggerInterface;
+export type SimpleLeveledLogMethod = (message: string, ...meta: any[]) => SimpleLoggerInterface;
 
 /**
  * There is a lot of value in standardizing around syslog error levels. Thus, this
@@ -188,15 +189,22 @@ export type LeveledLogMethod = (message: string, ...meta: any[]) => SimpleLogger
  * other levels (for whatever reason) if they must.
  */
 export interface SimpleLoggerInterface {
-  log: LogMethod;
-  debug: LeveledLogMethod;
-  info: LeveledLogMethod;
-  notice: LeveledLogMethod;
-  warning: LeveledLogMethod;
-  error: LeveledLogMethod;
-  alert: LeveledLogMethod;
-  critical: LeveledLogMethod;
-  emergency: LeveledLogMethod;
+  log: SimpleLogMethod;
+  debug: SimpleLeveledLogMethod;
+  info: SimpleLeveledLogMethod;
+  notice: SimpleLeveledLogMethod;
+  warning: SimpleLeveledLogMethod;
+  error: SimpleLeveledLogMethod;
+  alert: SimpleLeveledLogMethod;
+  critical: SimpleLeveledLogMethod;
+  emergency: SimpleLeveledLogMethod;
+}
+
+/**
+ * A SimpleLoggerConsumer accepts and uses a SimpleLoggerInterface
+ */
+export interface SimpleLoggerConsumerInterface {
+  setLogger: (logger: SimpleLoggerInterface) => unknown;
 }
 
 export * from "@openfinance/http-errors";
