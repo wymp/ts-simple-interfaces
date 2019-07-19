@@ -1,5 +1,5 @@
 import "jest";
-import { SimpleHttpClientAxios } from "../src";
+import { SimpleHttpClientRpn } from "../src";
 import { SimpleHttpResponseInterface } from "ts-simple-interfaces";
 
 declare interface Todo {
@@ -10,7 +10,7 @@ declare interface Todo {
 }
 
 test("Can get API response", async () => {
-  const client = new SimpleHttpClientAxios();
+  const client = new SimpleHttpClientRpn();
   const r: SimpleHttpResponseInterface = await client.request<Todo>({
     url: "https://jsonplaceholder.typicode.com/todos/1",
     json: true

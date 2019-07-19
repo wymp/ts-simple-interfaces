@@ -14,7 +14,7 @@ export interface SimpleRpnRequestConfig extends SimpleHttpRequestConfig {
   rejectUnauthorized?: boolean;
 }
 
-export class SimpleHttpClientAxios implements SimpleHttpClientInterface {
+export class SimpleHttpClientRpn implements SimpleHttpClientInterface {
   protected rpn: rpn.RequestPromiseAPI;
 
   constructor(
