@@ -150,8 +150,8 @@ export interface SimpleHttpRequestConfig {
     | 'post' | 'POST'
     | 'put' | 'PUT'
     | 'patch' | 'PATCH';
-  headers?: any;
-  params?: any;
+  headers?: Array<{ [headerName: string]: Array<string>|string }>;
+  params?: { [paramKey: string]: string|number|null };
   data?: any;
   timeout?: number;
   maxRedirects?: number;
