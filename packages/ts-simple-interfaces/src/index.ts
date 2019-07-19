@@ -142,7 +142,14 @@ export interface SimpleSqlResponseInterface<T extends unknown> extends SimpleDat
 export interface SimpleHttpRequestConfig {
   url?: string;
   baseURL?: string;
-  method?: string;
+  method?:
+    | 'get' | 'GET'
+    | 'delete' | 'DELETE'
+    | 'head' | 'HEAD'
+    | 'options' | 'OPTIONS'
+    | 'post' | 'POST'
+    | 'put' | 'PUT'
+    | 'patch' | 'PATCH';
   headers?: any;
   params?: any;
   data?: any;
