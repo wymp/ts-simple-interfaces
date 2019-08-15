@@ -1,6 +1,11 @@
 Simple Interfaces for Typescript
 ===============================================================================
 
+> 
+> **NOTE:** This library is experimental right now and in active alpha development.
+> While you may feel free to use it, it is expected to change considerably.
+> 
+
 This library attempts to define a set of simplified interfaces for typescript that are compatible
 with common tools in the ecosystem. Most of these tools are I/O-based, such as pub/subs (amqp),
 relational databases (mysql, postgres), key-value stores (redis), and loggers (winston), but
@@ -43,6 +48,12 @@ export class MyDatasource implements SimpleDataInterface {
   ....
 }
 ```
+
+
+## API
+
+The best way to understand the API is by just looking at the declarations file
+[here](https://github.com/kael-shipman/ts-simple-interfaces/blob/master/packages/ts-simple-interfaces/src/index.ts).
 
 
 ## Footnotes
