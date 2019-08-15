@@ -1,0 +1,38 @@
+{
+  "name": "simple-logger-winston",
+  "version": "0.1.0",
+  "description": "A Simple™-conformant wrapper around winston logger",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "jest tests/",
+    "prepublish": "tsc"
+  },
+  "author": "Kael Shipman <kael.shipman@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "ts-simple-interfaces": "^0.1.0",
+    "winston": "^3.2.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.15",
+    "husky": "^3.0.3",
+    "jest": "^24.8.0",
+    "prettier": "^1.18.2",
+    "pretty-quick": "^1.11.1",
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.5.3"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    }
+  },
+  "prettier": {                                                                                        
+    "printWidth": 100                                                                                  
+  },                                                                                                   
+  "husky": {                                                                                           
+    "hooks": {                                                                                         
+      "pre-commit": "pretty-quick --staged"                                                            
+    }                                                                                                  
+  }
+}
