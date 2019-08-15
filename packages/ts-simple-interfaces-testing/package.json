@@ -12,6 +12,9 @@
   "files": [
     "dist/**/*"
   ],
+  "scripts": {
+    "prepublish": "tsc"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",

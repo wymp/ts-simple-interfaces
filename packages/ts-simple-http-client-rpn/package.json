@@ -4,7 +4,8 @@
   "description": "A Simple™-conformant wrapper around request-promise-native",
   "main": "dist/index.js",
   "scripts": {
-    "test": "jest tests/"
+    "test": "jest tests/",
+    "prepublish": "tsc"
   },
   "author": "Kael Shipman <kael.shipman@gmail.com>",
   "license": "ISC",
