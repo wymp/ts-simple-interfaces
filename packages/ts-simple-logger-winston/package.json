@@ -27,12 +27,12 @@
       "^.+\\.tsx?$": "ts-jest"
     }
   },
-  "prettier": {                                                                                        
-    "printWidth": 100                                                                                  
-  },                                                                                                   
-  "husky": {                                                                                           
-    "hooks": {                                                                                         
-      "pre-commit": "pretty-quick --staged"                                                            
-    }                                                                                                  
+  "prettier": {
+    "printWidth": 100
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
   }
 }
