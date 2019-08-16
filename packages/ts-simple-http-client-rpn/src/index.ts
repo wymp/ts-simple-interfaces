@@ -1,13 +1,17 @@
 import {
   SimpleHttpRequestConfig,
   SimpleHttpResponseInterface,
-  SimpleHttpClientInterface,
+  SimpleHttpClientInterface
 } from "ts-simple-interfaces";
 import * as rpn from "request-promise-native";
 import * as req from "request";
 
 export interface SimpleRpnRequestConfig extends SimpleHttpRequestConfig {
-  transform?: (body: any, response: req.Response, resolveWithFullResponse?: boolean) => any;
+  transform?: (
+    body: any,
+    response: req.Response,
+    resolveWithFullResponse?: boolean
+  ) => any;
   transform2xxOnly?: boolean;
   json?: any;
   removeRefererHeader?: boolean;
@@ -17,9 +21,7 @@ export interface SimpleRpnRequestConfig extends SimpleHttpRequestConfig {
 export class SimpleHttpClientRpn implements SimpleHttpClientInterface {
   protected rpn: rpn.RequestPromiseAPI;
 
-  constructor(
-    deps?: { rpn?: rpn.RequestPromiseAPI }
-  ) {
+  constructor(deps?: { rpn?: rpn.RequestPromiseAPI }) {
     if (deps && deps.rpn) {
       this.rpn = deps.rpn;
     } else {
@@ -46,6 +48,7 @@ export class SimpleHttpClientRpn implements SimpleHttpClientInterface {
       rejectUnauthorized: config.rejectUnauthorized,
       followAllRedirects: true,
       resolveWithFullResponse: true,
+      qs: config.params || null
     };
     config.url = config.url!;
     return this.rpn(rpnConfig).then(
@@ -55,9 +58,8 @@ export class SimpleHttpClientRpn implements SimpleHttpClientInterface {
           status: r.statusCode,
           headers: r.headers,
           config
-        }
+        };
       }
     );
   }
 }
-
