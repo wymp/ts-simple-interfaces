@@ -1,7 +1,7 @@
+/*
 import {
   SimpleHttpClientInterface,
   SimpleHttpRequestConfig,
   SimpleHttpResponseInterface,
-} from "simple-interfaces";
-
-
+} from "ts-simple-interfaces";
+ */

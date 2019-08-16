@@ -1,18 +1,21 @@
-import { SimplePublisherInterface } from "simple-interfaces";
+import { SimplePublisherInterface } from "ts-simple-interfaces";
 
 interface MethodCall {
   method: string;
   args: any[];
 }
 
-
 export class SimpleMockPublisher implements SimplePublisherInterface {
   protected _calls: MethodCall[] = [];
 
-  public publish(domain: string, event: unknown, ...rest: any[]): Promise<void> {
+  public publish(
+    domain: string,
+    event: unknown,
+    ...rest: any[]
+  ): Promise<void> {
     const t = this;
     return new Promise(function(resolve, reject) {
-      t.register("publish", [ domain, event ].concat(rest));
+      t.register("publish", [domain, event].concat(rest));
       resolve();
     });
   }
