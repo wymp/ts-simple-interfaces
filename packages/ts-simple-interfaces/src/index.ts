@@ -184,19 +184,14 @@ export interface SimpleHttpClientInterface {
 
 /****************************************************
  * Logging
- * **************************************************/
-
-export type SimpleLogMethod = (level: string, message: string, ...meta: any[]) => SimpleLoggerInterface;
-
-export type SimpleLeveledLogMethod = (message: string, ...meta: any[]) => SimpleLoggerInterface;
-
-/**
+ *
  * There is a lot of value in standardizing around syslog error levels. Thus, this
  * SimpleLoggerInterface defines these methods explicitly. Different loggers may implement
  * other levels (for whatever reason) if they must.
- */
-export interface SimpleLoggerInterface {
-  log: SimpleLogMethod;
+ * **************************************************/
+
+// This is a hack because typescript won't let us use a union type as an index type :(
+export interface SimpleLogLevels {
   debug: SimpleLeveledLogMethod;
   info: SimpleLeveledLogMethod;
   notice: SimpleLeveledLogMethod;
@@ -206,6 +201,12 @@ export interface SimpleLoggerInterface {
   critical: SimpleLeveledLogMethod;
   emergency: SimpleLeveledLogMethod;
 }
+export type SimpleLogMethod = (level: keyof SimpleLogLevels, message: string, ...meta: any[]) => SimpleLoggerInterface;
+export type SimpleLeveledLogMethod = (message: string, ...meta: any[]) => SimpleLoggerInterface;
+
+export interface SimpleLoggerInterface extends SimpleLogLevels {
+  log: SimpleLogMethod;
+}
 
 /**
  * A SimpleLoggerConsumer accepts and uses a SimpleLoggerInterface
@@ -214,4 +215,9 @@ export interface SimpleLoggerConsumerInterface {
   setLogger: (logger: SimpleLoggerInterface) => unknown;
 }
 
+
+
+/****************************************************
+ * Errors
+ * **************************************************/
 export * from "@openfinance/http-errors";
