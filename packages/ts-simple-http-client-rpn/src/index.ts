@@ -1,7 +1,9 @@
 import {
   SimpleHttpRequestConfig,
   SimpleHttpResponseInterface,
-  SimpleHttpClientInterface
+  SimpleHttpClientInterface,
+  SimpleLogLevels,
+  SimpleLoggerInterface,
 } from "ts-simple-interfaces";
 import * as rpn from "request-promise-native";
 import * as req from "request";
@@ -21,7 +23,7 @@ export interface SimpleRpnRequestConfig extends SimpleHttpRequestConfig {
 export class SimpleHttpClientRpn implements SimpleHttpClientInterface {
   protected rpn: rpn.RequestPromiseAPI;
 
-  constructor(deps?: { rpn?: rpn.RequestPromiseAPI }) {
+  constructor(deps?: { rpn?: rpn.RequestPromiseAPI }, protected logger?: SimpleLoggerInterface) {
     if (deps && deps.rpn) {
       this.rpn = deps.rpn;
     } else {
@@ -31,7 +33,7 @@ export class SimpleHttpClientRpn implements SimpleHttpClientInterface {
 
   // TODO: Implement handling for throwErrors option
   // TODO: Implement special data handling for rpn-specific options
-  request<T extends any>(
+  public request<T extends any>(
     config: SimpleRpnRequestConfig
   ): Promise<SimpleHttpResponseInterface<T>> {
     const rpnConfig: rpn.OptionsWithUrl = {
@@ -53,13 +55,41 @@ export class SimpleHttpClientRpn implements SimpleHttpClientInterface {
     config.url = config.url!;
     return this.rpn(rpnConfig).then(
       (r: rpn.FullResponse): SimpleHttpResponseInterface<T> => {
+        let data: T | null = null;
+        if (r.headers) {
+          const contentType = Object.entries(r.headers).find(
+            (v) => v[0].toLowerCase() === "content-type"
+          );
+          if (
+            contentType &&
+            (contentType[1] as string).match(/^application\/.*json.*$/) &&
+            typeof r.body === "string" &&
+            r.body.length > 0
+          ) {
+            this.log("debug", "SimpleHttpClientRPN: Parsing body from string");
+            data = <T>JSON.parse(r.body);
+          }
+        }
+
+        if (data === null) {
+          this.log("debug", "SimpleHttpClientRPN: Using raw body from response.");
+          data = r.body;
+        }
+
         return {
-          data: r.body,
+          data: data!,
           status: r.statusCode,
           headers: r.headers,
           config
         };
       }
     );
+  }
+
+  protected log(level: keyof SimpleLogLevels, msg: string): this {
+    if (this.logger) {
+      this.logger.log(level, msg);
+    }
+    return this;
   }
 }

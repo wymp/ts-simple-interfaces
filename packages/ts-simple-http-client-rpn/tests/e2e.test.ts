@@ -13,7 +13,6 @@ test("Can get API response", async () => {
   const client = new SimpleHttpClientRpn();
   const r: SimpleHttpResponseInterface = await client.request<Todo>({
     url: "https://jsonplaceholder.typicode.com/todos/1",
-    json: true
   });
 
   expect(r.status).toBe(200);
@@ -23,3 +22,4 @@ test("Can get API response", async () => {
   expect(typeof r.data.completed).toBe("boolean");
   expect(typeof r.data.title).toBe("string");
 });
+
