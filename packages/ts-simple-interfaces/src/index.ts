@@ -156,6 +156,7 @@ export interface SimpleHttpRequestConfig {
   timeout?: number;
   maxRedirects?: number;
   throwErrors?: boolean;
+  requireValidCerts?: boolean;
 }
 
 /**
