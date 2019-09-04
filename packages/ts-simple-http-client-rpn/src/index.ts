@@ -36,6 +36,7 @@ export class SimpleHttpClientRpn implements SimpleHttpClientInterface {
   public request<T extends any>(
     config: SimpleRpnRequestConfig
   ): Promise<SimpleHttpResponseInterface<T>> {
+    config.url = config.url!;
     const rpnConfig: rpn.OptionsWithUrl = {
       baseUrl: config.baseURL,
       url: config.url || "/",
@@ -44,6 +45,7 @@ export class SimpleHttpClientRpn implements SimpleHttpClientInterface {
       transform: config.transform,
       transform2xxOnly: config.transform2xxOnly,
       json: config.json,
+      body: config.data,
       maxRedirects: config.maxRedirects,
       removeRefererHeader: config.removeRefererHeader,
       timeout: config.timeout,
@@ -52,7 +54,18 @@ export class SimpleHttpClientRpn implements SimpleHttpClientInterface {
       resolveWithFullResponse: true,
       qs: config.params || null
     };
-    config.url = config.url!;
+
+    // Set json property if necessary
+    if (
+      rpnConfig.body &&
+      typeof rpnConfig.body !== "string" &&
+      !(rpnConfig.body instanceof Buffer) &&
+      rpnConfig.json !== true &&
+      rpnConfig.json !== false
+    ) {
+      rpnConfig.json = true;
+    }
+
     return this.rpn(rpnConfig).then(
       (r: rpn.FullResponse): SimpleHttpResponseInterface<T> => {
         let data: T | null = null;
