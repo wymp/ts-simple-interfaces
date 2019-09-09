@@ -5,7 +5,7 @@ interface MethodCall {
   args: any[];
 }
 
-export class SimpleMockPublisher implements SimplePublisherInterface {
+export class MockSimplePublisher implements SimplePublisherInterface {
   protected _calls: MethodCall[] = [];
 
   public publish(
