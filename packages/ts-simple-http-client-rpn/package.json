@@ -1,6 +1,6 @@
 {
   "name": "simple-http-client-rpn",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "A Simple™-conformant wrapper around request-promise-native",
   "main": "dist/index.js",
   "scripts": {
@@ -10,13 +10,13 @@
   "author": "Kael Shipman <kael.shipman@gmail.com>",
   "license": "ISC",
   "dependencies": {
+    "@types/request-promise-native": "^1.0.16",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
     "ts-simple-interfaces": "^0.1.1"
   },
   "devDependencies": {
     "@types/jest": "^24.0.15",
-    "@types/request-promise-native": "^1.0.16",
     "jest": "^24.9.0",
     "ts-jest": "^24.0.2",
     "typescript": "^3.5.3"
