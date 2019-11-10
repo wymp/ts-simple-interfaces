@@ -1,19 +1,19 @@
 import {
   SimpleHttpClientInterface,
-  SimpleHttpRequestConfig,
-  SimpleHttpResponseInterface,
+  SimpleHttpClientRequestConfig,
+  SimpleHttpClientResponseInterface,
 } from "ts-simple-interfaces";
 
 export class MockSimpleHttpClient implements SimpleHttpClientInterface {
   protected responses: {
-    [key: string]: Array<SimpleHttpResponseInterface|NodeJS.ErrnoException>
+    [key: string]: Array<SimpleHttpClientResponseInterface|NodeJS.ErrnoException>
   } = {};
 
-  protected _requests: Array<SimpleHttpRequestConfig> = [];
+  protected _requests: Array<SimpleHttpClientRequestConfig> = [];
 
   public setNextResponse(
     key: string,
-    response: SimpleHttpResponseInterface|NodeJS.ErrnoException
+    response: SimpleHttpClientResponseInterface|NodeJS.ErrnoException
   ): void {
     if (!this.responses.hasOwnProperty(key)) {
       this.responses[key] = [response];
@@ -23,8 +23,8 @@ export class MockSimpleHttpClient implements SimpleHttpClientInterface {
   }
 
   public async request<T = any>(
-    config: SimpleHttpRequestConfig
-  ): Promise<SimpleHttpResponseInterface<T>> {
+    config: SimpleHttpClientRequestConfig
+  ): Promise<SimpleHttpClientResponseInterface<T>> {
     // Copy config object and add method, if necessary
     config = Object.assign({}, config);
     if (typeof config.method === "undefined") {
@@ -51,7 +51,7 @@ export class MockSimpleHttpClient implements SimpleHttpClientInterface {
     if (typeof (res as NodeJS.ErrnoException).stack !== "undefined") {
       throw <NodeJS.ErrnoException>res;
     } else {
-      return <SimpleHttpResponseInterface<T>>res;
+      return <SimpleHttpClientResponseInterface<T>>res;
     }
   }
 

@@ -1,6 +1,6 @@
 import {
-  SimpleHttpRequestConfig,
-  SimpleHttpResponseInterface,
+  SimpleHttpClientRequestConfig,
+  SimpleHttpClientResponseInterface,
   SimpleHttpClientInterface,
 } from "ts-simple-interfaces";
 import
@@ -28,10 +28,10 @@ export class SimpleHttpClientAxios implements SimpleHttpClientInterface {
   }
 
   request<T extends any>(
-    config: SimpleHttpRequestConfig
-  ): Promise<SimpleHttpResponseInterface<T>> {
+    config: SimpleHttpClientRequestConfig
+  ): Promise<SimpleHttpClientResponseInterface<T>> {
     return this.axios.request<T>(config).then(
-      (r: AxiosResponse<T>): SimpleHttpResponseInterface<T> => {
+      (r: AxiosResponse<T>): SimpleHttpClientResponseInterface<T> => {
         return {
           data: r.data,
           status: r.status,

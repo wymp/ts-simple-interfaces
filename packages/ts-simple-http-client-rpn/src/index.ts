@@ -1,6 +1,6 @@
 import {
-  SimpleHttpRequestConfig,
-  SimpleHttpResponseInterface,
+  SimpleHttpClientRequestConfig,
+  SimpleHttpClientResponseInterface,
   SimpleHttpClientInterface,
   SimpleLogLevels,
   SimpleLoggerInterface,
@@ -8,7 +8,7 @@ import {
 import * as rpn from "request-promise-native";
 import * as req from "request";
 
-export interface SimpleRpnRequestConfig extends SimpleHttpRequestConfig {
+export interface SimpleRpnRequestConfig extends SimpleHttpClientRequestConfig {
   transform?: (
     body: any,
     response: req.Response,
@@ -35,7 +35,7 @@ export class SimpleHttpClientRpn implements SimpleHttpClientInterface {
   // TODO: Implement special data handling for rpn-specific options
   public request<T extends any>(
     config: SimpleRpnRequestConfig
-  ): Promise<SimpleHttpResponseInterface<T>> {
+  ): Promise<SimpleHttpClientResponseInterface<T>> {
     config.url = config.url!;
     const rpnConfig: rpn.OptionsWithUrl = {
       baseUrl: config.baseURL,
@@ -67,7 +67,7 @@ export class SimpleHttpClientRpn implements SimpleHttpClientInterface {
     }
 
     return this.rpn(rpnConfig).then(
-      (r: rpn.FullResponse): SimpleHttpResponseInterface<T> => {
+      (r: rpn.FullResponse): SimpleHttpClientResponseInterface<T> => {
         let data: T | null = null;
         if (r.headers) {
           const contentType = Object.entries(r.headers).find(
