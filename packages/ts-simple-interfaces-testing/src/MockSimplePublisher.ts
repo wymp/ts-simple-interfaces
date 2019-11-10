@@ -8,14 +8,16 @@ interface MethodCall {
 export class MockSimplePublisher implements SimplePublisherInterface {
   protected _calls: MethodCall[] = [];
 
-  public publish(
-    domain: string,
+  public publishToChannel(
+    channel: string,
+    routingKey: string,
     event: unknown,
+    options?: unknown,
     ...rest: any[]
   ): Promise<void> {
     const t = this;
     return new Promise(function(resolve, reject) {
-      t.register("publish", [domain, event].concat(rest));
+      t.register("publish", [channel, routingKey, event, options].concat(rest));
       resolve();
     });
   }
