@@ -11,15 +11,20 @@
  */
 export interface SimplePublisherInterface {
   /**
-   * Publish a message to a stream.
+   * Publish a message to a channel.
    *
-   * "stream" is the name of a message channel, and is based largely on AMQP's concept
-   * of an "exchange". The idea is that you publish a message to a named stream, and
-   * it is the stream's job to then route the message. The `msg` value should carry
+   * "channel" is the name of a message channel, and is based largely on AMQP's concept
+   * of an "exchange". The idea is that you publish a message to a named channel, and
+   * it is the channel's job to then route the message. The `msg` value should carry
    * all necessary information for your implementation of the publisher to specify
    * the correct routing parameters.
    */
-  publish: (stream: string, msg: unknown, options?: unknown) => Promise<void>;
+  publishToChannel: (
+    channel: string,
+    routingKey: string,
+    msg: unknown,
+    options?: unknown
+  ) => Promise<void>;
 }
 
 /**
@@ -33,8 +38,8 @@ export interface SimplePublisherInterface {
  * some sort of EventEmitter behavior as well.
  */
 export interface SimpleSubscriberInterface {
-  subscribe: (
-    streams: Array<string>,
+  subscribeToChannel: (
+    channels: Array<string>,
     routingKeys?: string[],
     options?: unknown
   ) => Promise<SimpleSubscriptionInterface>;
@@ -48,14 +53,14 @@ export interface SimpleSubscriberInterface {
  */
 export interface SimpleSubscriptionInterface {
   on: (
-    event: string | symbol,
-    listener: (routingKey: string, msg: unknown) => void
+    event: "receive" | "disconnect" | "error",
+    listener: (routingKey: string, msg: unknown, options?: unknown) => void
   ) => this;
   removeListener: (
-    event: string | symbol,
-    listener: (routingKey: string, msg: unknown) => void
+    event: "receive" | "disconnect" | "error",
+    listener: (routingKey: string, msg: unknown, options?: unknown) => void
   ) => this;
-  removeAllListeners: (event?: string | symbol) => this;
+  removeAllListeners: (event?: "receive" | "disconnect" | "error") => this;
 }
 
 /**
@@ -101,7 +106,7 @@ export interface SimpleDatasourceInterface {
    * their own decisions about how to handle resources that do or don't already have assigned
    * IDs.
    */
-  save: <T = unknown>(resource: Partial<T>, force: boolean) => Promise<T>;
+  save: <T extends unknown>(resource: Partial<T>, force: boolean) => Promise<T>;
 
   /**
    * Should accept the ID of a resource to delete.
@@ -123,11 +128,26 @@ export interface SimpleDatasetInterface<T extends unknown> {
  * that they may be more plug-and-playable.
  */
 export interface SimpleSqlDbInterface {
-  query: <T extends unknown>(query: string, params?: Array<string | number | boolean | Buffer | Date>) => Promise<SimpleSqlResponseInterface<T>>;
+  query: <T extends unknown>(
+    query: string,
+    params?: Array<string | number | boolean | Buffer | Date>
+  ) => Promise<SimpleSqlResponseInterface<T>>;
 }
 
+/**
+ * Most of these properties are optional, since they are rarely used and many developers will
+ * choose not to implement them.
+ */
 export interface SimpleSqlResponseInterface<T extends unknown> extends SimpleDatasetInterface<T> {
-  readonly affectedRows: number|null;
+  /**
+   * The number of rows affected by a create, update or delete action
+   */
+  readonly affectedRows?: number|null;
+
+  /**
+   * The total number of rows a SELECT query would have returned had it not had a limit applied
+   */
+  readonly totalRows?: number | null;
 }
 
 
@@ -221,4 +241,6 @@ export interface SimpleLoggerConsumerInterface {
 /****************************************************
  * Errors
  * **************************************************/
-export * from "@openfinance/http-errors";
+import * as Errors from "@openfinance/http-errors";
+export { Errors };
+
