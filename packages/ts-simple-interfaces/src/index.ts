@@ -68,6 +68,29 @@ export interface SimpleSubscriptionInterface {
  */
 export interface SimplePubSubInterface extends SimplePublisherInterface, SimpleSubscriberInterface { }
 
+/**
+ * An interface that provides a good starting point for a typical Event
+ */
+export interface SimpleEvent {
+  /** A UUID for the event */
+  id: string;
+
+  /** The time in MS at which the event occurred */
+  timestamp: number;
+
+  /** The domain in which the event was produced*/
+  domain: string;
+
+  /** The event type (may be coincident with the routing key in AMQP systems) */
+  type?: string;
+
+  /** The event ID that caused this event to be produced, if applicable */
+  parentId?: string | null;
+
+  /** A field for miscellaneous data */
+  meta?: unknown;
+}
+
 
 
 
@@ -339,31 +362,45 @@ export interface SimpleHttpServerMiddleware {
 
 /**
  * This defines a function that binds the given route with the given middleware. It is usually
- * used in the context of HTTP method methods (like 'get', or 'post') to define a route.
+ * used in the context of HTTP method methods (like 'get', or 'post') to define a handler for a
+ * given route.
  */
-export interface SimpleHttpServerHandlerFunction {
+export interface SimpleHttpRequestHandlerFunction {
   (route: string | RegExp, handler: SimpleHttpServerMiddleware): this;
 }
 
 /**
- * This defines a simple webservice that allows you to add middleware, error handling, and request
- * handling per http method. It additionally allows you to set up a collection of local variables
- * that will be attached to every request and respones through those objects' respective
- * `app.locals` key.
+ * This defines a simple request handler that allows you to add global middleware and error
+ * handling, as well as routing per http method. It additionally allows you to set up a collection
+ * of local variables that will be attached to every request and response through those objects'
+ * respective `app.locals` key.
  */
-export interface SimpleHttpServerInterface<AppLocals = {}> {
+export interface SimpleHttpRequestHandlerInterface<AppLocals = {}> {
   use(middleware: SimpleHttpServerMiddleware): this;
   use(errorHandler: SimpleHttpServerNextFunction): this;
 
-  get: SimpleHttpServerHandlerFunction;
-  post: SimpleHttpServerHandlerFunction;
-  patch: SimpleHttpServerHandlerFunction;
-  put: SimpleHttpServerHandlerFunction;
-  delete: SimpleHttpServerHandlerFunction;
-  head: SimpleHttpServerHandlerFunction;
-  options: SimpleHttpServerHandlerFunction;
+  get: SimpleHttpRequestHandlerFunction;
+  post: SimpleHttpRequestHandlerFunction;
+  patch: SimpleHttpRequestHandlerFunction;
+  put: SimpleHttpRequestHandlerFunction;
+  delete: SimpleHttpRequestHandlerFunction;
+  head: SimpleHttpRequestHandlerFunction;
+  options: SimpleHttpRequestHandlerFunction;
 
   locals: AppLocals;
+}
+
+/**
+ * This defines a full webservice that accommodates request routing and additionally defines a
+ * method for listening for requests on a port and host.
+ *
+ * This is separate from the request handler interface to facilitate configurations in which
+ * more of the control around setup and listening is retained by a framework.
+ */
+export interface SimpleHttpServerInterface<AppLocals = {}>
+extends SimpleHttpRequestHandlerInterface<AppLocals> {
+  listen(port: number, hostname: string, listeningCallback?: (...args: any[]) => void): unknown;
+  listen(port: number, listeningCallback?: (...args: any[]) => void): unknown;
 }
 
 
