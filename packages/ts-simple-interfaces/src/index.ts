@@ -153,7 +153,7 @@ export interface SimpleDatasetInterface<T extends unknown> {
 export interface SimpleSqlDbInterface {
   query: <T extends unknown>(
     query: string,
-    params?: Array<string | number | boolean | Buffer | Date>
+    params?: Array<string | number | boolean | Buffer | Date | null>
   ) => Promise<SimpleSqlResponseInterface<T>>;
 }
 
