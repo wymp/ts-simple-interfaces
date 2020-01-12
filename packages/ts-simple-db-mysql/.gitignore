@@ -1,0 +1,4 @@
+*.sw[op]
+tmp
+node_modules
+tests/config.json
