@@ -1,6 +1,6 @@
 {
   "name": "simple-logger-winston",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "A Simple™-conformant wrapper around winston logger",
   "main": "dist/index.js",
   "scripts": {
