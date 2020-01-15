@@ -160,7 +160,8 @@ export interface SimpleHttpRequestConfig {
 }
 
 /**
- * A simple HTTP Response interface (clone of AxiosResponse)
+ * A simple HTTP Response interface (reduced clone of AxiosResponse) representing a response
+ * object received by an HTTP Client in response to a request made to a server.
  */
 export interface SimpleHttpResponseInterface<T = any>  {
   data: T;

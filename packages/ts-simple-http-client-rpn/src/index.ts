@@ -52,7 +52,8 @@ export class SimpleHttpClientRpn implements SimpleHttpClientInterface {
       rejectUnauthorized: config.rejectUnauthorized,
       followAllRedirects: true,
       resolveWithFullResponse: true,
-      qs: config.params || null
+      qs: config.params || null,
+      simple: config.throwErrors || false,
     };
 
     // Set json property if necessary
