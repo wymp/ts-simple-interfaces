@@ -48,7 +48,7 @@ export class MockSimpleSqlDb implements SimpleSqlDbInterface {
 
   public query(
     query: string,
-    params?: Array<string | number | boolean | Buffer | Date>
+    params?: Array<string | number | boolean | Buffer | Date | null>
   ): Promise<SimpleSqlResponseInterface<any>> {
     if (this.closed) {
       throw new Error(
