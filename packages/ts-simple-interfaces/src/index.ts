@@ -55,12 +55,12 @@ export interface SimpleSubscriptionInterface {
   on: (
     event: "receive" | "disconnect" | "error",
     listener: (routingKey: string, msg: unknown, options?: unknown) => void
-  ) => this;
+  ) => SimpleSubscriptionInterface;
   removeListener: (
     event: "receive" | "disconnect" | "error",
     listener: (routingKey: string, msg: unknown, options?: unknown) => void
-  ) => this;
-  removeAllListeners: (event?: "receive" | "disconnect" | "error") => this;
+  ) => SimpleSubscriptionInterface;
+  removeAllListeners: (event?: "receive" | "disconnect" | "error") => SimpleSubscriptionInterface;
 }
 
 /**
@@ -224,8 +224,7 @@ export interface SimpleHttpClientInterface {
 
 export interface SimpleHttpServerRequestInterface<
   Params = {},
-  Query = {},
-  AppLocals = {}
+  Query = {}
 > {
   /**
    * URL parameters as defined by the route
@@ -272,22 +271,17 @@ export interface SimpleHttpServerRequestInterface<
    * The final URL for the request
    */
   url: string;
-
-  /**
-   * This is a very small stub for a full Express app
-   */
-  app: { locals: AppLocals };
 }
 
 /**
  * A response object, usually passed into request handlers and used to build up and eventually
  * send an HTTP response.
  */
-export interface SimpleHttpServerResponseInterface<ResLocals = {}, AppLocals = {}> {
+export interface SimpleHttpServerResponseInterface<ResLocals = {}> {
   /**
    * Set status `code`.
    */
-  status(code: number): this;
+  status(code: number): SimpleHttpServerResponseInterface<ResLocals>;
 
   /**
    * Send a response.
@@ -299,7 +293,7 @@ export interface SimpleHttpServerResponseInterface<ResLocals = {}, AppLocals = {
    *     res.send('<p>some html</p>');
    *     res.status(404).send('Sorry, cant find that');
    */
-  send: (body?: unknown) => this;
+  send: (body?: unknown) => SimpleHttpServerResponseInterface<ResLocals>;
 
   /**
    * Set header `field` to `val`, or pass
@@ -313,11 +307,11 @@ export interface SimpleHttpServerResponseInterface<ResLocals = {}, AppLocals = {
    *
    * Aliased as `res.header()`.
    */
-  set(field: any): this;
-  set(field: string, value?: string | string[]): this;
+  set(field: any): SimpleHttpServerResponseInterface<ResLocals>;
+  set(field: string, value?: string | string[]): SimpleHttpServerResponseInterface<ResLocals>;
 
-  header(field: any): this;
-  header(field: string, value?: string | string[]): this;
+  header(field: any): SimpleHttpServerResponseInterface<ResLocals>;
+  header(field: string, value?: string | string[]): SimpleHttpServerResponseInterface<ResLocals>;
 
   /** Get value for header `field`. */
   get(field: string): string;
@@ -331,11 +325,6 @@ export interface SimpleHttpServerResponseInterface<ResLocals = {}, AppLocals = {
    * Variables to attach to the response
    */
   locals: ResLocals
-
-  /**
-   * This is a very small stub for a full Express app
-   */
-  app: { locals: AppLocals };
 }
 
 /**
@@ -345,9 +334,7 @@ export interface SimpleHttpServerResponseInterface<ResLocals = {}, AppLocals = {
  * activate any error handling logic you've put in place. Otherwise, control is simply passed
  * to the next middleware in the stack.
  */
-export interface SimpleHttpServerNextFunction {
-    (errOrOtherVal?: any): void;
-}
+export type SimpleHttpServerNextFunction = (errOrOtherVal?: any) => void;
 
 /**
  * This defines a function that accepts the standard request/response/next triad and utilizes
@@ -362,33 +349,23 @@ export interface SimpleHttpServerMiddleware {
 }
 
 /**
- * This defines a function that binds the given route with the given middleware. It is usually
- * used in the context of HTTP method methods (like 'get', or 'post') to define a handler for a
- * given route.
- */
-export interface SimpleHttpRequestHandlerFunction {
-  (route: string | RegExp, handler: SimpleHttpServerMiddleware): this;
-}
-
-/**
  * This defines a simple request handler that allows you to add global middleware and error
- * handling, as well as routing per http method. It additionally allows you to set up a collection
- * of local variables that will be attached to every request and response through those objects'
- * respective `app.locals` key.
+ * handling, as well as routing per http method. It used to support the idea of a collection of
+ * app-local variables, but upon further consideration it was determined that there is not enough
+ * perceived value added by that system to really continue its existence.
  */
-export interface SimpleHttpRequestHandlerInterface<AppLocals = {}> {
-  use(middleware: SimpleHttpServerMiddleware): this;
-  use(errorHandler: SimpleHttpServerNextFunction): this;
+export interface SimpleHttpRequestHandlerInterface {
+  use(
+    middlewareOrErrorHandler: SimpleHttpServerMiddleware | SimpleHttpServerNextFunction
+  ): SimpleHttpRequestHandlerInterface;
 
-  get: SimpleHttpRequestHandlerFunction;
-  post: SimpleHttpRequestHandlerFunction;
-  patch: SimpleHttpRequestHandlerFunction;
-  put: SimpleHttpRequestHandlerFunction;
-  delete: SimpleHttpRequestHandlerFunction;
-  head: SimpleHttpRequestHandlerFunction;
-  options: SimpleHttpRequestHandlerFunction;
-
-  locals: AppLocals;
+  get: <Params extends unknown>(route: string | RegExp, handler: SimpleHttpServerMiddleware) => SimpleHttpRequestHandlerInterface;
+  post: <Params extends unknown>(route: string | RegExp, handler: SimpleHttpServerMiddleware) => SimpleHttpRequestHandlerInterface;
+  patch: (route: string | RegExp, handler: SimpleHttpServerMiddleware) => SimpleHttpRequestHandlerInterface;
+  put: (route: string | RegExp, handler: SimpleHttpServerMiddleware) => SimpleHttpRequestHandlerInterface;
+  delete: (route: string | RegExp, handler: SimpleHttpServerMiddleware) => SimpleHttpRequestHandlerInterface;
+  head: (route: string | RegExp, handler: SimpleHttpServerMiddleware) => SimpleHttpRequestHandlerInterface;
+  options: (route: string | RegExp, handler: SimpleHttpServerMiddleware) => SimpleHttpRequestHandlerInterface;
 }
 
 /**
@@ -398,8 +375,8 @@ export interface SimpleHttpRequestHandlerInterface<AppLocals = {}> {
  * This is separate from the request handler interface to facilitate configurations in which
  * more of the control around setup and listening is retained by a framework.
  */
-export interface SimpleHttpServerInterface<AppLocals = {}>
-extends SimpleHttpRequestHandlerInterface<AppLocals> {
+export interface SimpleHttpServerInterface
+extends SimpleHttpRequestHandlerInterface {
   listen(port: number, hostname: string, listeningCallback?: (...args: any[]) => void): unknown;
   listen(port: number, listeningCallback?: (...args: any[]) => void): unknown;
 }

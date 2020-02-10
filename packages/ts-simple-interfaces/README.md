@@ -96,6 +96,10 @@ Following is a list of implementations by interface:
 
 * [`simple-logger-winston`](../ts-simple-logger-winston)
 
+### `SimpleSqlDbInterface`
+
+* [`simple-db-mysql`](../ts-simple-db-mysql)
+
 
 ## Testing
 
