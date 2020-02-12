@@ -34,6 +34,17 @@ export class SimpleHttpServerExpress implements SimpleHttpRequestHandlerInterfac
     return this;
   }
 
+  public all<
+    P extends HttpRequestParams = HttpRequestParamsDict,
+    ReqBody extends unknown = unknown
+  >(
+    route: string | RegExp | Array<string | RegExp>,
+    handler: SimpleHttpServerMiddleware<P,ReqBody>
+  ): SimpleHttpRequestHandlerInterface {
+    this.app.all(route, <any>handler);
+    return this;
+  }
+
   public get<
     P extends HttpRequestParams = HttpRequestParamsDict,
     ReqBody extends unknown = unknown

@@ -184,7 +184,7 @@ type UpperCaseHttpMethods = "GET" | "DELETE" | "HEAD" | "OPTIONS" | "POST" | "PU
 export type HttpMethods = LowerCaseHttpMethods | UpperCaseHttpMethods;
 
 // Ripped straight out of ExpressJS
-export interface HttpRequestParamsDict { [key: string]: string; };
+export interface HttpRequestParamsDict { [key: string]: string | undefined; };
 export type HttpRequestParamsArray = Array<string>;
 export type HttpRequestParams = HttpRequestParamsDict | HttpRequestParamsArray;
 
@@ -239,7 +239,7 @@ export interface SimpleHttpServerRequestInterface<
   /**
    * Query parameters
    */
-  query: unknown;
+  query: any;
 
   /**
    * Get the value of a header
@@ -367,6 +367,10 @@ export interface SimpleHttpRequestHandlerInterface {
     middlewareOrErrorHandler: SimpleHttpServerMiddleware<ReqParams,ReqBody> | SimpleHttpServerNextFunction
   ): SimpleHttpRequestHandlerInterface;
 
+  all: <ReqParams extends HttpRequestParams = HttpRequestParamsDict, ReqBody extends unknown = unknown>(
+    route: string | RegExp | Array<string | RegExp>,
+    handler: SimpleHttpServerMiddleware<ReqParams, ReqBody>
+  ) => SimpleHttpRequestHandlerInterface;
   get: <ReqParams extends HttpRequestParams = HttpRequestParamsDict>(
     route: string | RegExp | Array<string | RegExp>,
     handler: SimpleHttpServerMiddleware<ReqParams, unknown>
