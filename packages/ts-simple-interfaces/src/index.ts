@@ -183,6 +183,11 @@ type LowerCaseHttpMethods = "get" | "delete" | "head" | "options" | "post" | "pu
 type UpperCaseHttpMethods = "GET" | "DELETE" | "HEAD" | "OPTIONS" | "POST" | "PUT" | "PATCH";
 export type HttpMethods = LowerCaseHttpMethods | UpperCaseHttpMethods;
 
+// Ripped straight out of ExpressJS
+export interface HttpRequestParamsDict { [key: string]: string; };
+export type HttpRequestParamsArray = Array<string>;
+export type HttpRequestParams = HttpRequestParamsDict | HttpRequestParamsArray;
+
 /**
  * A simple HTTP Request config object (reduced clone of AxiosRequestConfig)
  */
@@ -223,18 +228,18 @@ export interface SimpleHttpClientInterface {
 }
 
 export interface SimpleHttpServerRequestInterface<
-  Params = {},
-  Query = {}
+  ReqParams extends HttpRequestParams = HttpRequestParamsDict,
+  ReqBody extends unknown = unknown
 > {
   /**
    * URL parameters as defined by the route
    */
-  params: Params;
+  params: ReqParams;
 
   /**
    * Query parameters
    */
-  query: Query;
+  query: unknown;
 
   /**
    * Get the value of a header
@@ -255,7 +260,7 @@ export interface SimpleHttpServerRequestInterface<
   /**
    * Get the body of the request
    */
-  body: unknown;
+  body: ReqBody;
 
   /**
    * The method by which the route was called
@@ -340,9 +345,12 @@ export type SimpleHttpServerNextFunction = (errOrOtherVal?: any) => void;
  * This defines a function that accepts the standard request/response/next triad and utilizes
  * them to do something, including (sometimes) send responses or add variables to the request, etc.
  */
-export interface SimpleHttpServerMiddleware {
+export interface SimpleHttpServerMiddleware<
+  ReqParams extends HttpRequestParams = HttpRequestParamsDict,
+  ReqBody extends unknown = unknown
+> {
   (
-    req: SimpleHttpServerRequestInterface,
+    req: SimpleHttpServerRequestInterface<ReqParams, ReqBody>,
     res: SimpleHttpServerResponseInterface,
     next: SimpleHttpServerNextFunction
   ): unknown;
@@ -355,17 +363,38 @@ export interface SimpleHttpServerMiddleware {
  * perceived value added by that system to really continue its existence.
  */
 export interface SimpleHttpRequestHandlerInterface {
-  use(
-    middlewareOrErrorHandler: SimpleHttpServerMiddleware | SimpleHttpServerNextFunction
+  use<ReqParams extends HttpRequestParams = HttpRequestParamsDict, ReqBody extends unknown = unknown>(
+    middlewareOrErrorHandler: SimpleHttpServerMiddleware<ReqParams,ReqBody> | SimpleHttpServerNextFunction
   ): SimpleHttpRequestHandlerInterface;
 
-  get: <Params extends unknown>(route: string | RegExp, handler: SimpleHttpServerMiddleware) => SimpleHttpRequestHandlerInterface;
-  post: <Params extends unknown>(route: string | RegExp, handler: SimpleHttpServerMiddleware) => SimpleHttpRequestHandlerInterface;
-  patch: (route: string | RegExp, handler: SimpleHttpServerMiddleware) => SimpleHttpRequestHandlerInterface;
-  put: (route: string | RegExp, handler: SimpleHttpServerMiddleware) => SimpleHttpRequestHandlerInterface;
-  delete: (route: string | RegExp, handler: SimpleHttpServerMiddleware) => SimpleHttpRequestHandlerInterface;
-  head: (route: string | RegExp, handler: SimpleHttpServerMiddleware) => SimpleHttpRequestHandlerInterface;
-  options: (route: string | RegExp, handler: SimpleHttpServerMiddleware) => SimpleHttpRequestHandlerInterface;
+  get: <ReqParams extends HttpRequestParams = HttpRequestParamsDict>(
+    route: string | RegExp | Array<string | RegExp>,
+    handler: SimpleHttpServerMiddleware<ReqParams, unknown>
+  ) => SimpleHttpRequestHandlerInterface;
+  post: <ReqParams extends HttpRequestParams = HttpRequestParamsDict, ReqBody extends unknown = unknown>(
+    route: string | RegExp | Array<string | RegExp>,
+    handler: SimpleHttpServerMiddleware<ReqParams, ReqBody>
+  ) => SimpleHttpRequestHandlerInterface;
+  patch: <ReqParams extends HttpRequestParams = HttpRequestParamsDict, ReqBody extends unknown = unknown>(
+    route: string | RegExp | Array<string | RegExp>,
+    handler: SimpleHttpServerMiddleware<ReqParams, ReqBody>
+  ) => SimpleHttpRequestHandlerInterface;
+  put: <ReqParams extends HttpRequestParams = HttpRequestParamsDict, ReqBody extends unknown = unknown>(
+    route: string | RegExp | Array<string | RegExp>,
+    handler: SimpleHttpServerMiddleware<ReqParams, ReqBody>
+  ) => SimpleHttpRequestHandlerInterface;
+  delete: <ReqParams extends HttpRequestParams = HttpRequestParamsDict>(
+    route: string | RegExp | Array<string | RegExp>,
+    handler: SimpleHttpServerMiddleware<ReqParams, unknown>
+  ) => SimpleHttpRequestHandlerInterface;
+  head: <ReqParams extends HttpRequestParams = HttpRequestParamsDict>(
+    route: string | RegExp | Array<string | RegExp>,
+    handler: SimpleHttpServerMiddleware<ReqParams, unknown>
+  ) => SimpleHttpRequestHandlerInterface;
+  options: <ReqParams extends HttpRequestParams = HttpRequestParamsDict>(
+    route: string | RegExp | Array<string | RegExp>,
+    handler: SimpleHttpServerMiddleware<ReqParams, unknown>
+  ) => SimpleHttpRequestHandlerInterface;
 }
 
 /**
