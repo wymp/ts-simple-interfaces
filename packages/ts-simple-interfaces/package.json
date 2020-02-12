@@ -1,6 +1,6 @@
 {
   "name": "ts-simple-interfaces",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "This library attempts to define a set of simplified interfaces for typescript that are compatible with common tools in the ecosystem.",
   "author": "Kael Shipman<kael.shipman@gmail.com>",
   "homepage": "https://github.com/kael-shipman/ts-simple-interfaces",

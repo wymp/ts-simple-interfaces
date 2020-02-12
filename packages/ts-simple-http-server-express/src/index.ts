@@ -39,9 +39,9 @@ export class SimpleHttpServerExpress implements SimpleHttpRequestHandlerInterfac
     ReqBody extends unknown = unknown
   >(
     route: string | RegExp | Array<string | RegExp>,
-    handler: SimpleHttpServerMiddleware<P,ReqBody>
+    handlers: SimpleHttpServerMiddleware<P,ReqBody> | Array<SimpleHttpServerMiddleware<P,ReqBody>>
   ): SimpleHttpRequestHandlerInterface {
-    this.app.all(route, <any>handler);
+    this.app.all(route, <any>handlers);
     return this;
   }
 
@@ -50,9 +50,9 @@ export class SimpleHttpServerExpress implements SimpleHttpRequestHandlerInterfac
     ReqBody extends unknown = unknown
   >(
     route: string | RegExp | Array<string | RegExp>,
-    handler: SimpleHttpServerMiddleware<P,ReqBody>
+    handlers: SimpleHttpServerMiddleware<P,ReqBody> | Array<SimpleHttpServerMiddleware<P,ReqBody>>
   ): SimpleHttpRequestHandlerInterface {
-    this.app.get(route, <any>handler);
+    this.app.get(route, <any>handlers);
     return this;
   }
 
@@ -61,9 +61,9 @@ export class SimpleHttpServerExpress implements SimpleHttpRequestHandlerInterfac
     ReqBody extends unknown = unknown
   >(
     route: string | RegExp | Array<string | RegExp>,
-    handler: SimpleHttpServerMiddleware<P,ReqBody>
+    handlers: SimpleHttpServerMiddleware<P,ReqBody> | Array<SimpleHttpServerMiddleware<P,ReqBody>>
   ): SimpleHttpRequestHandlerInterface {
-    this.app.post(route, <any>handler);
+    this.app.post(route, <any>handlers);
     return this;
   }
 
@@ -72,9 +72,9 @@ export class SimpleHttpServerExpress implements SimpleHttpRequestHandlerInterfac
     ReqBody extends unknown = unknown
   >(
     route: string | RegExp | Array<string | RegExp>,
-    handler: SimpleHttpServerMiddleware<P,ReqBody>
+    handlers: SimpleHttpServerMiddleware<P,ReqBody> | Array<SimpleHttpServerMiddleware<P,ReqBody>>
   ): SimpleHttpRequestHandlerInterface {
-    this.app.patch(route, <any>handler);
+    this.app.patch(route, <any>handlers);
     return this;
   }
 
@@ -83,36 +83,33 @@ export class SimpleHttpServerExpress implements SimpleHttpRequestHandlerInterfac
     ReqBody extends unknown = unknown
   >(
     route: string | RegExp | Array<string | RegExp>,
-    handler: SimpleHttpServerMiddleware<P,ReqBody>
+    handlers: SimpleHttpServerMiddleware<P,ReqBody> | Array<SimpleHttpServerMiddleware<P,ReqBody>>
   ): SimpleHttpRequestHandlerInterface {
-    this.app.put(route, <any>handler);
+    this.app.put(route, <any>handlers);
     return this;
   }
 
   public delete<P extends HttpRequestParams = HttpRequestParamsDict>(
     route: string | RegExp | Array<string | RegExp>,
-    handler: SimpleHttpServerMiddleware<P,unknown>
+    handlers: SimpleHttpServerMiddleware<P,unknown> | Array<SimpleHttpServerMiddleware<P,unknown>>
   ): SimpleHttpRequestHandlerInterface {
-    this.app.delete(route, <any>handler);
+    this.app.delete(route, <any>handlers);
     return this;
   }
 
-  public head<
-    P extends HttpRequestParams = HttpRequestParamsDict,
-    ReqBody extends unknown = unknown
-  >(
+  public head<P extends HttpRequestParams = HttpRequestParamsDict>(
     route: string | RegExp | Array<string | RegExp>,
-    handler: SimpleHttpServerMiddleware<P,ReqBody>
+    handlers: SimpleHttpServerMiddleware<P,unknown> | Array<SimpleHttpServerMiddleware<P,unknown>>
   ): SimpleHttpRequestHandlerInterface {
-    this.app.head(route, <any>handler);
+    this.app.head(route, <any>handlers);
     return this;
   }
 
   public options<P extends HttpRequestParams = HttpRequestParamsDict>(
     route: string | RegExp | Array<string | RegExp>,
-    handler: SimpleHttpServerMiddleware<P,unknown>
+    handlers: SimpleHttpServerMiddleware<P,unknown> | Array<SimpleHttpServerMiddleware<P,unknown>>
   ): SimpleHttpRequestHandlerInterface {
-    this.app.options(route, <any>handler);
+    this.app.options(route, <any>handlers);
     return this;
   }
 

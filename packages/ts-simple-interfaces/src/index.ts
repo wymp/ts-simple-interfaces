@@ -276,6 +276,16 @@ export interface SimpleHttpServerRequestInterface<
    * The final URL for the request
    */
   url: string;
+
+  /**
+   * Tests whether this request accepts the given content type(s). Returns false (or undefined?)
+   * if it does not, otherwise returns the preffered type that was passed in. (See express type
+   * documentation for more information.)
+   */
+  accepts(): Array<string>;
+  accepts(type: string): string | false | undefined;
+  accepts(type: Array<string>): string | false | undefined;
+  accepts(...type: Array<string>): string | false | undefined;
 }
 
 /**
@@ -369,35 +379,35 @@ export interface SimpleHttpRequestHandlerInterface {
 
   all: <ReqParams extends HttpRequestParams = HttpRequestParamsDict, ReqBody extends unknown = unknown>(
     route: string | RegExp | Array<string | RegExp>,
-    handler: SimpleHttpServerMiddleware<ReqParams, ReqBody>
+    handlers: SimpleHttpServerMiddleware<ReqParams, ReqBody> | Array<SimpleHttpServerMiddleware<ReqParams, ReqBody>>
   ) => SimpleHttpRequestHandlerInterface;
   get: <ReqParams extends HttpRequestParams = HttpRequestParamsDict>(
     route: string | RegExp | Array<string | RegExp>,
-    handler: SimpleHttpServerMiddleware<ReqParams, unknown>
+    handlers: SimpleHttpServerMiddleware<ReqParams, unknown> | Array<SimpleHttpServerMiddleware<ReqParams, unknown>>
   ) => SimpleHttpRequestHandlerInterface;
   post: <ReqParams extends HttpRequestParams = HttpRequestParamsDict, ReqBody extends unknown = unknown>(
     route: string | RegExp | Array<string | RegExp>,
-    handler: SimpleHttpServerMiddleware<ReqParams, ReqBody>
+    handlers: SimpleHttpServerMiddleware<ReqParams, ReqBody> | Array<SimpleHttpServerMiddleware<ReqParams, ReqBody>>
   ) => SimpleHttpRequestHandlerInterface;
   patch: <ReqParams extends HttpRequestParams = HttpRequestParamsDict, ReqBody extends unknown = unknown>(
     route: string | RegExp | Array<string | RegExp>,
-    handler: SimpleHttpServerMiddleware<ReqParams, ReqBody>
+    handlers: SimpleHttpServerMiddleware<ReqParams, ReqBody> | Array<SimpleHttpServerMiddleware<ReqParams, ReqBody>>
   ) => SimpleHttpRequestHandlerInterface;
   put: <ReqParams extends HttpRequestParams = HttpRequestParamsDict, ReqBody extends unknown = unknown>(
     route: string | RegExp | Array<string | RegExp>,
-    handler: SimpleHttpServerMiddleware<ReqParams, ReqBody>
+    handlers: SimpleHttpServerMiddleware<ReqParams, ReqBody> | Array<SimpleHttpServerMiddleware<ReqParams, ReqBody>>
   ) => SimpleHttpRequestHandlerInterface;
   delete: <ReqParams extends HttpRequestParams = HttpRequestParamsDict>(
     route: string | RegExp | Array<string | RegExp>,
-    handler: SimpleHttpServerMiddleware<ReqParams, unknown>
+    handlers: SimpleHttpServerMiddleware<ReqParams, unknown> | Array<SimpleHttpServerMiddleware<ReqParams, unknown>>
   ) => SimpleHttpRequestHandlerInterface;
   head: <ReqParams extends HttpRequestParams = HttpRequestParamsDict>(
     route: string | RegExp | Array<string | RegExp>,
-    handler: SimpleHttpServerMiddleware<ReqParams, unknown>
+    handlers: SimpleHttpServerMiddleware<ReqParams, unknown> | Array<SimpleHttpServerMiddleware<ReqParams, unknown>>
   ) => SimpleHttpRequestHandlerInterface;
   options: <ReqParams extends HttpRequestParams = HttpRequestParamsDict>(
     route: string | RegExp | Array<string | RegExp>,
-    handler: SimpleHttpServerMiddleware<ReqParams, unknown>
+    handlers: SimpleHttpServerMiddleware<ReqParams, unknown> | Array<SimpleHttpServerMiddleware<ReqParams, unknown>>
   ) => SimpleHttpRequestHandlerInterface;
 }
 
