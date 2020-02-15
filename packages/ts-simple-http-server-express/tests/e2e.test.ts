@@ -1,63 +1,128 @@
 import "jest";
-import { SimpleDbMysql } from "../src";
-import * as fs from "fs";
+import { SimpleHttpServerExpress } from "../src";
+import { MockSimpleLogger } from "ts-simple-interfaces-testing";
+import { SimpleHttpClientRpn } from "simple-http-client-rpn";
 
 describe("End-To-End Tests", () => {
-  describe("SimpleDbMysql", () => {
-    let mysql: SimpleDbMysql;
+  describe("SimpleHttpServerExpress", () => {
+    const request = new SimpleHttpClientRpn();
+    let instances: Array<{ close: () => unknown }>;
 
-    // Get config
-    if (!fs.existsSync("./tests/config.json")) {
-      throw new Error(
-        `You must copy ./tests/config.example.json to ./tests/config.json and set the correct ` +
-        `values.`
+    beforeEach(() => {
+      instances = [];
+    });
+
+    afterEach(() => {
+      instances.map((i) => i.close());
+    });
+
+    test("should respond to basic GET calls", async () => {
+      const srv = new SimpleHttpServerExpress(
+        { listeners: [ [ 3210, "localhost" ] ] },
+        new MockSimpleLogger()
       );
-    }
-    const config = JSON.parse(fs.readFileSync("./tests/config.json", "utf8"));
 
-    // Set up/Tear Down
-    beforeEach(async () => {
-      mysql = new SimpleDbMysql(config.db);
-      await mysql.query(
-        "CREATE TABLE `test` (`id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT)"
+      srv.get<{ path1: string; path2: string }>("/test/:path1/:path2", (req, res, next) => {
+        res.status(201).send({
+          path: req.path,
+          params: req.params,
+          query: req.query,
+
+          // This just tests that the type of req.query is 'any' and not 'unknown'
+          typeTest: req.query.typeTest ? true : false,
+
+          // This should fail type-checking if uncommented
+          //pathTest: req.params.path3,
+        });
+      });
+
+      // Start the server
+      await new Promise((res, rej) => {
+        instances = srv.listen((listener) => res());
+      });
+
+      const res = await request.request<{ path: string; params: any; query: any; typeTest: boolean; }>({
+        baseURL: "http://localhost:3210",
+        url: "/test/my/path?q=2&r=3",
+      });
+
+      expect(res.status).toBe(201);
+      expect(res.data).toHaveProperty("path");
+      expect(res.data).toHaveProperty("params");
+      expect(res.data).toHaveProperty("query");
+      expect(res.data).toHaveProperty("typeTest");
+
+      expect(res.data.path).toBe("/test/my/path");
+      expect(JSON.stringify(res.data.params)).toBe(JSON.stringify({ path1: "my", path2: "path" }));
+      expect(JSON.stringify(res.data.query)).toBe(JSON.stringify({ q: "2", r: "3" }));
+    });
+
+    test("should respond to basic POST requests", async () => {
+      const srv = new SimpleHttpServerExpress(
+        { listeners: [ [ 3210, "localhost" ] ] },
+        new MockSimpleLogger({ outputMessages: true })
       );
-    });
-    afterEach(async () => {
-      await mysql.query("DROP TABLE `test`");
-    });
-    afterAll(() => {
-      mysql.close();
-    });
 
-    test("should return affected rows when executing mutation statements", async () => {
-      const r = await mysql.query("INSERT INTO `test` VALUES (NULL), (NULL)");
-      expect(r).toHaveProperty("affectedRows");
-      expect(r.affectedRows).toBe(2);
-      expect(r).toHaveProperty("rows");
-      expect(r.rows.length).toBe(0);
+      srv.post<
+        { path1: string; path2: string; },
+        { something: string; tatsty: boolean; }
+      >("/test/:path1/:path2", (req, res, next) => {
+        try {
+          res.status(201).send({
+            path: req.path,
+            params: req.params,
+            query: req.query,
+            body: req.body,
 
-      const r2 = await mysql.query("UPDATE `test` SET `id` = 3 WHERE `id` = 1");
-      expect(r2).toHaveProperty("affectedRows");
-      expect(r2.affectedRows).toBe(1);
-      expect(r2).toHaveProperty("rows");
-      expect(r2.rows.length).toBe(0);
-    });
+            // These are just to make sure we don't get type errors
+            typeTest: req.query.typeTest ? true : false,
+            typeTest2: req.body.something === "else" ? true : false,
 
-    test("should return rows when executing select statements", async () => {
-      await mysql.query("INSERT INTO `test` VALUES (NULL), (NULL), (NULL), (NULL)");
-      const r = await mysql.query<{id: number}>("SELECT * FROM `test`");
-      expect(r).not.toHaveProperty("affectedRows");
-      expect(r).toHaveProperty("rows");
-      expect(r.rows.length).toBe(4);
-      expect(r.rows[0].id).toBe(1);
-      expect(r.rows[1].id).toBe(2);
+            // These should fail type-checking if uncommented
+            //pathTest: req.params.path3,
+            //bodyTest: req.body.otherThing,
+          });
+        } catch (e) {
+          res.status(500).send({ error: e.message });
+        }
+      });
 
-      const r2 = await mysql.query<{id: number}>("SELECT * FROM `test` WHERE `id` > 2");
-      expect(r2).not.toHaveProperty("affectedRows");
-      expect(r2).toHaveProperty("rows");
-      expect(r2.rows.length).toBe(2);
-      expect(r2.rows[0].id).toBe(3);
-      expect(r2.rows[1].id).toBe(4);
+      // Start the server
+      await new Promise((res, rej) => {
+        instances = srv.listen((listener) => res());
+      });
+
+      const res = await request.request<{
+        path: string;
+        params: any;
+        query: any;
+        body: any;
+        typeTest: boolean;
+        typeTest2: boolean;
+      }>({
+        method: "post",
+        baseURL: "http://localhost:3210",
+        url: "/test/my/path?q=2&r=3",
+        data: {
+          something: "whiney",
+          tasty: true,
+        },
+      });
+
+      expect(JSON.stringify(res.data)).not.toContain("error");
+      expect(res.status).toBe(201);
+      expect(res.data).toHaveProperty("path");
+      expect(res.data).toHaveProperty("params");
+      expect(res.data).toHaveProperty("query");
+      expect(res.data).toHaveProperty("body");
+      expect(res.data).toHaveProperty("typeTest");
+      expect(res.data).toHaveProperty("typeTest2");
+
+      expect(res.data.path).toBe("/test/my/path");
+      expect(JSON.stringify(res.data.params)).toBe(JSON.stringify({ path1: "my", path2: "path" }));
+      expect(JSON.stringify(res.data.query)).toBe(JSON.stringify({ q: "2", r: "3" }));
+      expect(JSON.stringify(res.data.body))
+        .toBe(JSON.stringify({ something: "whiney", tasty: true }));
     });
   });
 });

@@ -1,4 +1,5 @@
 import * as express from "express";
+import { OptionsJson } from "body-parser";
 import {
   HttpRequestParams,
   HttpRequestParamsDict,
@@ -12,6 +13,7 @@ declare type Port = number;
 declare type Host = string;
 export interface SimpleHttpServerConfig {
   listeners: Array<[ Port, Host | undefined ]>;
+  jsonBodyOptions?: OptionsJson;
 }
 
 export class SimpleHttpServerExpress implements SimpleHttpRequestHandlerInterface {
@@ -21,7 +23,23 @@ export class SimpleHttpServerExpress implements SimpleHttpRequestHandlerInterfac
     protected config: SimpleHttpServerConfig,
     protected log: SimpleLoggerInterface,
   ) {
+    // Instantiate express app
     this.app = express();
+
+    // Parse json bodies
+    this.config.jsonBodyOptions = this.config.jsonBodyOptions || {};
+    this.config.jsonBodyOptions.type = this.config.jsonBodyOptions.type || [];
+    if (typeof this.config.jsonBodyOptions.type === "string") {
+      this.config.jsonBodyOptions.type = [ this.config.jsonBodyOptions.type ];
+    }
+    if (Array.isArray(this.config.jsonBodyOptions.type)) {
+      this.config.jsonBodyOptions.type = this.config.jsonBodyOptions.type.concat([
+        "application/json",
+        "application/vnd.api+json",
+        "application/json-rpc",
+      ]);
+    }
+    this.app.use(express.json(this.config.jsonBodyOptions!));
   }
 
   public use<
@@ -113,21 +131,25 @@ export class SimpleHttpServerExpress implements SimpleHttpRequestHandlerInterfac
     return this;
   }
 
-  public listen(userCallback?: (...args: Array<unknown>) => unknown): void {
+  public listen(
+    userCallback?: (listener: [ Port, Host | undefined ], args: Array<unknown>) => unknown
+  ): Array<{ close: () => unknown }> {
     if (this.config.listeners.length === 0) {
-      this.log.error(`You've called 'listen', but you haven't passed any listeners in your config.`);
+      throw new Error(
+        `You've called 'listen', but you haven't passed any listeners in your config.`
+      );
     } else {
-      this.config.listeners.map((listener) => {
+      return this.config.listeners.map((listener) => {
         const internalCallback = (...args: Array<unknown>) => {
           this.log.notice(`Listening on ${listener[1] ? `${listener[1]}:${listener[0]}` : `Port ${listener[0]}`}`);
           if (userCallback) {
-            userCallback(...args);
+            userCallback(listener, args);
           }
         }
         if (listener[1]) {
-          this.app.listen(listener[0], listener[1], internalCallback);
+          return this.app.listen(listener[0], listener[1], internalCallback);
         } else {
-          this.app.listen(listener[0], internalCallback);
+          return this.app.listen(listener[0], internalCallback);
         }
       });
     }
