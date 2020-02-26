@@ -22,7 +22,7 @@ export class MockSimplePublisher implements SimplePublisherInterface {
     });
   }
 
-  public close(...rest: any[]) {
+  public async close(...rest: any[]) {
     this.register("close", rest);
   }
 
