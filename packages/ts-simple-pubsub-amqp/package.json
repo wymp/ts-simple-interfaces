@@ -1,7 +1,7 @@
 {
-  "name": "simple-logger-winston",
+  "name": "simple-pubsub-amqp",
   "version": "0.4.0",
-  "description": "A Simple™-conformant wrapper around winston logger",
+  "description": "A Simple™-conformant wrapper around amqplib",
   "main": "dist/index.js",
   "scripts": {
     "test": "jest tests/",
@@ -10,11 +10,13 @@
   "author": "Kael Shipman <kael.shipman@gmail.com>",
   "license": "ISC",
   "dependencies": {
-    "ts-simple-interfaces": "^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0",
-    "winston": "^3.2.1"
+    "amqplib": "^0.5.5",
+    "@types/amqplib": "^0.5.13",
+    "ts-simple-interfaces": "^0.4.0"
   },
   "devDependencies": {
     "@types/jest": "^24.0.15",
+    "@types/node": "^10.14.12",
     "husky": "^3.0.3",
     "jest": "^24.9.0",
     "prettier": "^1.18.2",
@@ -22,17 +24,21 @@
     "ts-jest": "^24.0.2",
     "typescript": "^3.7.2"
   },
-  "jest": {
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    }
-  },
   "prettier": {
-    "printWidth": 100
+    "printWidth": 100,
+    "trailingComma": "es5"
   },
   "husky": {
     "hooks": {
       "pre-commit": "pretty-quick --staged"
+    }
+  },
+  "jest": {
+    "roots": [
+      "<rootDir>/tests"
+    ],
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
     }
   }
 }
