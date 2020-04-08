@@ -8,7 +8,7 @@ interface MethodCall {
 export class MockSimplePublisher implements SimplePublisherInterface {
   protected _calls: MethodCall[] = [];
 
-  public publishToChannel(
+  public publish(
     channel: string,
     routingKey: string,
     event: unknown,

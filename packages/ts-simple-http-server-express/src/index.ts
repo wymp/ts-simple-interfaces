@@ -6,6 +6,7 @@ import {
   SimpleHttpRequestHandlerInterface,
   SimpleHttpServerMiddleware,
   SimpleHttpServerNextFunction,
+  SimpleHttpServerErrorHandler,
   SimpleLoggerInterface,
 } from "ts-simple-interfaces";
 
@@ -42,92 +43,81 @@ export class SimpleHttpServerExpress implements SimpleHttpRequestHandlerInterfac
     this.app.use(express.json(this.config.jsonBodyOptions!));
   }
 
-  public use<
-    P extends HttpRequestParams = HttpRequestParamsDict,
-    ReqBody extends unknown = unknown
-  >(
-    middlewareOrErrorHandler: SimpleHttpServerMiddleware<P, ReqBody> | SimpleHttpServerNextFunction
+  public use(
+    middleware: SimpleHttpServerMiddleware | Array<SimpleHttpServerMiddleware>
   ): SimpleHttpRequestHandlerInterface {
-    this.app.use(<any>middlewareOrErrorHandler);
+    this.app.use(middleware);
     return this;
   }
 
-  public all<
-    P extends HttpRequestParams = HttpRequestParamsDict,
-    ReqBody extends unknown = unknown
-  >(
-    route: string | RegExp | Array<string | RegExp>,
-    handlers: SimpleHttpServerMiddleware<P,ReqBody> | Array<SimpleHttpServerMiddleware<P,ReqBody>>
+  public catch(
+    errorHandler: SimpleHttpServerErrorHandler | Array<SimpleHttpServerErrorHandler>
   ): SimpleHttpRequestHandlerInterface {
-    this.app.all(route, <any>handlers);
+    this.app.use(errorHandler);
     return this;
   }
 
-  public get<
-    P extends HttpRequestParams = HttpRequestParamsDict,
-    ReqBody extends unknown = unknown
-  >(
+  public all(
     route: string | RegExp | Array<string | RegExp>,
-    handlers: SimpleHttpServerMiddleware<P,ReqBody> | Array<SimpleHttpServerMiddleware<P,ReqBody>>
+    handlers: SimpleHttpServerMiddleware | Array<SimpleHttpServerMiddleware>
   ): SimpleHttpRequestHandlerInterface {
-    this.app.get(route, <any>handlers);
+    this.app.all(route, handlers);
     return this;
   }
 
-  public post<
-    P extends HttpRequestParams = HttpRequestParamsDict,
-    ReqBody extends unknown = unknown
-  >(
+  public get(
     route: string | RegExp | Array<string | RegExp>,
-    handlers: SimpleHttpServerMiddleware<P,ReqBody> | Array<SimpleHttpServerMiddleware<P,ReqBody>>
+    handlers: SimpleHttpServerMiddleware | Array<SimpleHttpServerMiddleware>
   ): SimpleHttpRequestHandlerInterface {
-    this.app.post(route, <any>handlers);
+    this.app.get(route, handlers);
     return this;
   }
 
-  public patch<
-    P extends HttpRequestParams = HttpRequestParamsDict,
-    ReqBody extends unknown = unknown
-  >(
+  public post(
     route: string | RegExp | Array<string | RegExp>,
-    handlers: SimpleHttpServerMiddleware<P,ReqBody> | Array<SimpleHttpServerMiddleware<P,ReqBody>>
+    handlers: SimpleHttpServerMiddleware | Array<SimpleHttpServerMiddleware>
   ): SimpleHttpRequestHandlerInterface {
-    this.app.patch(route, <any>handlers);
+    this.app.post(route, handlers);
     return this;
   }
 
-  public put<
-    P extends HttpRequestParams = HttpRequestParamsDict,
-    ReqBody extends unknown = unknown
-  >(
+  public patch(
     route: string | RegExp | Array<string | RegExp>,
-    handlers: SimpleHttpServerMiddleware<P,ReqBody> | Array<SimpleHttpServerMiddleware<P,ReqBody>>
+    handlers: SimpleHttpServerMiddleware | Array<SimpleHttpServerMiddleware>
   ): SimpleHttpRequestHandlerInterface {
-    this.app.put(route, <any>handlers);
+    this.app.patch(route, handlers);
     return this;
   }
 
-  public delete<P extends HttpRequestParams = HttpRequestParamsDict>(
+  public put(
     route: string | RegExp | Array<string | RegExp>,
-    handlers: SimpleHttpServerMiddleware<P,unknown> | Array<SimpleHttpServerMiddleware<P,unknown>>
+    handlers: SimpleHttpServerMiddleware | Array<SimpleHttpServerMiddleware>
   ): SimpleHttpRequestHandlerInterface {
-    this.app.delete(route, <any>handlers);
+    this.app.put(route, handlers);
     return this;
   }
 
-  public head<P extends HttpRequestParams = HttpRequestParamsDict>(
+  public delete(
     route: string | RegExp | Array<string | RegExp>,
-    handlers: SimpleHttpServerMiddleware<P,unknown> | Array<SimpleHttpServerMiddleware<P,unknown>>
+    handlers: SimpleHttpServerMiddleware | Array<SimpleHttpServerMiddleware>
   ): SimpleHttpRequestHandlerInterface {
-    this.app.head(route, <any>handlers);
+    this.app.delete(route, handlers);
     return this;
   }
 
-  public options<P extends HttpRequestParams = HttpRequestParamsDict>(
+  public head(
     route: string | RegExp | Array<string | RegExp>,
-    handlers: SimpleHttpServerMiddleware<P,unknown> | Array<SimpleHttpServerMiddleware<P,unknown>>
+    handlers: SimpleHttpServerMiddleware | Array<SimpleHttpServerMiddleware>
   ): SimpleHttpRequestHandlerInterface {
-    this.app.options(route, <any>handlers);
+    this.app.head(route, handlers);
+    return this;
+  }
+
+  public options(
+    route: string | RegExp | Array<string | RegExp>,
+    handlers: SimpleHttpServerMiddleware | Array<SimpleHttpServerMiddleware>
+  ): SimpleHttpRequestHandlerInterface {
+    this.app.options(route, handlers);
     return this;
   }
 

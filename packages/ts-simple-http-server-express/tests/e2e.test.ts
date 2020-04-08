@@ -22,7 +22,7 @@ describe("End-To-End Tests", () => {
         new MockSimpleLogger()
       );
 
-      srv.get<{ path1: string; path2: string }>("/test/:path1/:path2", (req, res, next) => {
+      srv.get("/test/:path1/:path2", (req, res, next) => {
         res.status(201).send({
           path: req.path,
           params: req.params,
@@ -60,13 +60,10 @@ describe("End-To-End Tests", () => {
     test("should respond to basic POST requests", async () => {
       const srv = new SimpleHttpServerExpress(
         { listeners: [ [ 3210, "localhost" ] ] },
-        new MockSimpleLogger({ outputMessages: true })
+        new MockSimpleLogger({ outputMessages: false })
       );
 
-      srv.post<
-        { path1: string; path2: string; },
-        { something: string; tatsty: boolean; }
-      >("/test/:path1/:path2", (req, res, next) => {
+      srv.post("/test/:path1/:path2", (req, res, next) => {
         try {
           res.status(201).send({
             path: req.path,
@@ -123,6 +120,46 @@ describe("End-To-End Tests", () => {
       expect(JSON.stringify(res.data.query)).toBe(JSON.stringify({ q: "2", r: "3" }));
       expect(JSON.stringify(res.data.body))
         .toBe(JSON.stringify({ something: "whiney", tasty: true }));
+    });
+
+    test("should properly handle errors on error handler registration", async () => {
+      const log = new MockSimpleLogger({ outputMessages: false })
+      const srv = new SimpleHttpServerExpress({ listeners: [ [ 3210, "localhost" ] ] }, log);
+
+      srv.post("/test/:path1/:path2", (req, res, next) => {
+        log.notice(`Param: ${req.params.path1}`);
+        log.notice(`Query: ${req.query.q}`);
+        log.notice(`Body: ${req.body.something}`);
+        next(new Error("This is a test error that should be caught"));
+      });
+      srv.catch((e, req ,res, next) => {
+        log.error(`Error: ${e.message}`);
+        res.status(500).send({
+          error: {
+            message: e.message
+          }
+        });
+      });
+
+      // Start the server
+      await new Promise((res, rej) => {
+        instances = srv.listen((listener) => res());
+      });
+
+      const res = await request.request<{ error: { message: string; }; }>({
+        method: "post",
+        baseURL: "http://localhost:3210",
+        url: "/test/my/path?q=2&r=3",
+        data: {
+          something: "whiney",
+          tasty: true,
+        },
+      });
+
+      expect(JSON.stringify(res.data)).toContain('"error":');
+      expect(res.status).toBe(500);
+      expect(res.data).toHaveProperty("error");
+      expect(res.data.error).toHaveProperty("message");
     });
   });
 });

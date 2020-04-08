@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "ts-md5": "^1.2.4",
-    "ts-simple-interfaces": "^0.2.0 || ^0.3.0 || ^0.4.0"
+    "ts-simple-interfaces": "^0.4.0"
   },
   "devDependencies": {
     "@types/node": "^10.14.12",

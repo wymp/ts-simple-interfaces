@@ -249,11 +249,6 @@ type LowerCaseHttpMethods = "get" | "delete" | "head" | "options" | "post" | "pu
 type UpperCaseHttpMethods = "GET" | "DELETE" | "HEAD" | "OPTIONS" | "POST" | "PUT" | "PATCH";
 export type HttpMethods = LowerCaseHttpMethods | UpperCaseHttpMethods;
 
-// Ripped straight out of ExpressJS
-export interface HttpRequestParamsDict { [key: string]: string | undefined; };
-export type HttpRequestParamsArray = Array<string>;
-export type HttpRequestParams = HttpRequestParamsDict | HttpRequestParamsArray;
-
 /**
  * A simple HTTP Request config object (reduced clone of AxiosRequestConfig)
  */
@@ -293,19 +288,22 @@ export interface SimpleHttpClientInterface {
   ) => Promise<SimpleHttpClientResponseInterface<T>>;
 }
 
-export interface SimpleHttpServerRequestInterface<
-  ReqParams extends HttpRequestParams = HttpRequestParamsDict,
-  ReqBody extends unknown = unknown
-> {
+export interface SimpleHttpServerRequestInterface {
   /**
    * URL parameters as defined by the route
+   *
+   * Note: Because this is a runtime boundary, it's not useful to try to define this using
+   * generics. It's much better to leave it vague and to force developers to do runtime checks
+   * on the incoming data.
    */
-  params: ReqParams;
+  params: { [key: string]: string; };
 
   /**
    * Query parameters
+   *
+   * See `params` for explanation of choice around "any" typing.
    */
-  query: any;
+  query: { [key: string]: any };
 
   /**
    * Get the value of a header
@@ -325,13 +323,15 @@ export interface SimpleHttpServerRequestInterface<
 
   /**
    * Get the body of the request
+   *
+   * See `params` for explanation of choice around "any" typing.
    */
-  body: ReqBody;
+  body: any;
 
   /**
    * The method by which the route was called
    */
-  method: LowerCaseHttpMethods;
+  method: string;
 
   /**
    * The original URL for the request
@@ -358,11 +358,11 @@ export interface SimpleHttpServerRequestInterface<
  * A response object, usually passed into request handlers and used to build up and eventually
  * send an HTTP response.
  */
-export interface SimpleHttpServerResponseInterface<ResLocals = {}> {
+export interface SimpleHttpServerResponseInterface {
   /**
    * Set status `code`.
    */
-  status(code: number): SimpleHttpServerResponseInterface<ResLocals>;
+  status(code: number): SimpleHttpServerResponseInterface;
 
   /**
    * Send a response.
@@ -374,7 +374,7 @@ export interface SimpleHttpServerResponseInterface<ResLocals = {}> {
    *     res.send('<p>some html</p>');
    *     res.status(404).send('Sorry, cant find that');
    */
-  send: (body?: unknown) => SimpleHttpServerResponseInterface<ResLocals>;
+  send: (body?: unknown) => SimpleHttpServerResponseInterface;
 
   /**
    * Set header `field` to `val`, or pass
@@ -388,11 +388,11 @@ export interface SimpleHttpServerResponseInterface<ResLocals = {}> {
    *
    * Aliased as `res.header()`.
    */
-  set(field: any): SimpleHttpServerResponseInterface<ResLocals>;
-  set(field: string, value?: string | string[]): SimpleHttpServerResponseInterface<ResLocals>;
+  set(field: any): SimpleHttpServerResponseInterface;
+  set(field: string, value?: string | string[]): SimpleHttpServerResponseInterface;
 
-  header(field: any): SimpleHttpServerResponseInterface<ResLocals>;
-  header(field: string, value?: string | string[]): SimpleHttpServerResponseInterface<ResLocals>;
+  header(field: any): SimpleHttpServerResponseInterface;
+  header(field: string, value?: string | string[]): SimpleHttpServerResponseInterface;
 
   /** Get value for header `field`. */
   get(field: string): string;
@@ -404,8 +404,13 @@ export interface SimpleHttpServerResponseInterface<ResLocals = {}> {
 
   /**
    * Variables to attach to the response
+   *
+   * While this is not a runtime boundary, there's no way to link handler functions together in
+   * such a way that we can statically verify conformity with expectations for this variable.
+   * Thus, it's better to type it as "any" because we will almost always be using it in a sort of
+   * "if this is set, then use it" sort of way.
    */
-  locals: ResLocals
+  locals: any;
 }
 
 /**
@@ -420,13 +425,20 @@ export type SimpleHttpServerNextFunction = (errOrOtherVal?: any) => void;
 /**
  * This defines a function that accepts the standard request/response/next triad and utilizes
  * them to do something, including (sometimes) send responses or add variables to the request, etc.
+ *
+ * It additionally defines a special middleware that handles errors
  */
-export interface SimpleHttpServerMiddleware<
-  ReqParams extends HttpRequestParams = HttpRequestParamsDict,
-  ReqBody extends unknown = unknown
-> {
+export interface SimpleHttpServerMiddleware {
   (
-    req: SimpleHttpServerRequestInterface<ReqParams, ReqBody>,
+    req: SimpleHttpServerRequestInterface,
+    res: SimpleHttpServerResponseInterface,
+    next: SimpleHttpServerNextFunction
+  ): unknown;
+}
+export interface SimpleHttpServerErrorHandler {
+  (
+    e: Error,
+    req: SimpleHttpServerRequestInterface,
     res: SimpleHttpServerResponseInterface,
     next: SimpleHttpServerNextFunction
   ): unknown;
@@ -439,41 +451,44 @@ export interface SimpleHttpServerMiddleware<
  * perceived value added by that system to really continue its existence.
  */
 export interface SimpleHttpRequestHandlerInterface {
-  use<ReqParams extends HttpRequestParams = HttpRequestParamsDict, ReqBody extends unknown = unknown>(
-    middlewareOrErrorHandler: SimpleHttpServerMiddleware<ReqParams,ReqBody> | SimpleHttpServerNextFunction
+  use(
+    middleware: SimpleHttpServerMiddleware | Array<SimpleHttpServerMiddleware>
+  ): SimpleHttpRequestHandlerInterface;
+  catch(
+    errorHandler: SimpleHttpServerErrorHandler | Array<SimpleHttpServerErrorHandler>
   ): SimpleHttpRequestHandlerInterface;
 
-  all: <ReqParams extends HttpRequestParams = HttpRequestParamsDict, ReqBody extends unknown = unknown>(
+  all: (
     route: string | RegExp | Array<string | RegExp>,
-    handlers: SimpleHttpServerMiddleware<ReqParams, ReqBody> | Array<SimpleHttpServerMiddleware<ReqParams, ReqBody>>
+    handlers: SimpleHttpServerMiddleware | Array<SimpleHttpServerMiddleware>
   ) => SimpleHttpRequestHandlerInterface;
-  get: <ReqParams extends HttpRequestParams = HttpRequestParamsDict>(
+  get: (
     route: string | RegExp | Array<string | RegExp>,
-    handlers: SimpleHttpServerMiddleware<ReqParams, unknown> | Array<SimpleHttpServerMiddleware<ReqParams, unknown>>
+    handlers: SimpleHttpServerMiddleware | Array<SimpleHttpServerMiddleware>
   ) => SimpleHttpRequestHandlerInterface;
-  post: <ReqParams extends HttpRequestParams = HttpRequestParamsDict, ReqBody extends unknown = unknown>(
+  post: (
     route: string | RegExp | Array<string | RegExp>,
-    handlers: SimpleHttpServerMiddleware<ReqParams, ReqBody> | Array<SimpleHttpServerMiddleware<ReqParams, ReqBody>>
+    handlers: SimpleHttpServerMiddleware | Array<SimpleHttpServerMiddleware>
   ) => SimpleHttpRequestHandlerInterface;
-  patch: <ReqParams extends HttpRequestParams = HttpRequestParamsDict, ReqBody extends unknown = unknown>(
+  patch: (
     route: string | RegExp | Array<string | RegExp>,
-    handlers: SimpleHttpServerMiddleware<ReqParams, ReqBody> | Array<SimpleHttpServerMiddleware<ReqParams, ReqBody>>
+    handlers: SimpleHttpServerMiddleware | Array<SimpleHttpServerMiddleware>
   ) => SimpleHttpRequestHandlerInterface;
-  put: <ReqParams extends HttpRequestParams = HttpRequestParamsDict, ReqBody extends unknown = unknown>(
+  put: (
     route: string | RegExp | Array<string | RegExp>,
-    handlers: SimpleHttpServerMiddleware<ReqParams, ReqBody> | Array<SimpleHttpServerMiddleware<ReqParams, ReqBody>>
+    handlers: SimpleHttpServerMiddleware | Array<SimpleHttpServerMiddleware>
   ) => SimpleHttpRequestHandlerInterface;
-  delete: <ReqParams extends HttpRequestParams = HttpRequestParamsDict>(
+  delete: (
     route: string | RegExp | Array<string | RegExp>,
-    handlers: SimpleHttpServerMiddleware<ReqParams, unknown> | Array<SimpleHttpServerMiddleware<ReqParams, unknown>>
+    handlers: SimpleHttpServerMiddleware | Array<SimpleHttpServerMiddleware>
   ) => SimpleHttpRequestHandlerInterface;
-  head: <ReqParams extends HttpRequestParams = HttpRequestParamsDict>(
+  head: (
     route: string | RegExp | Array<string | RegExp>,
-    handlers: SimpleHttpServerMiddleware<ReqParams, unknown> | Array<SimpleHttpServerMiddleware<ReqParams, unknown>>
+    handlers: SimpleHttpServerMiddleware | Array<SimpleHttpServerMiddleware>
   ) => SimpleHttpRequestHandlerInterface;
-  options: <ReqParams extends HttpRequestParams = HttpRequestParamsDict>(
+  options: (
     route: string | RegExp | Array<string | RegExp>,
-    handlers: SimpleHttpServerMiddleware<ReqParams, unknown> | Array<SimpleHttpServerMiddleware<ReqParams, unknown>>
+    handlers: SimpleHttpServerMiddleware | Array<SimpleHttpServerMiddleware>
   ) => SimpleHttpRequestHandlerInterface;
 }
 
