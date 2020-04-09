@@ -1,8 +1,6 @@
 import * as express from "express";
 import { OptionsJson } from "body-parser";
 import {
-  HttpRequestParams,
-  HttpRequestParamsDict,
   SimpleHttpRequestHandlerInterface,
   SimpleHttpServerMiddleware,
   SimpleHttpServerNextFunction,
