@@ -19,17 +19,24 @@ export interface SimplePublisherInterface {
    * all necessary information for your implementation of the publisher to specify
    * the correct routing parameters.
    */
-  publish: (
-    channel: string,
-    routingKey: string,
-    msg: unknown,
-    options?: unknown
-  ) => Promise<void>;
+  publish(channel: string, msg: unknown, options?: unknown): Promise<void>;
+
+  /**
+   * Needs to accommodate connection-level error handling and events
+   */
+  on(event: "connect", listener: () => void): this;
+  on(event: "disconnect", listener: () => void): this;
+  on(event: "error", listener: (e: Error) => void): this;
+  removeListener(
+    event: "receive" | "disconnect" | "error",
+    listener: () => void
+  ): this;
+  removeAllListeners(event?: "connect" | "disconnect" | "error"): this;
 
   /**
    * Close the connection
    */
-  close: () => Promise<unknown>;
+  close(): Promise<unknown>;
 }
 
 /**
@@ -40,15 +47,31 @@ export interface SimplePublisherInterface {
  */
 declare type RoutingKey = string;
 export interface SimpleSubscriberInterface {
-  subscribe: (
+  subscribe(
     routes: { [channel: string]: Array<RoutingKey> },
+    handler: (
+      msg: SimplePubSubMessageInterface,
+      log: SimpleLoggerInterface
+    ) => Promise<boolean>,
     options?: unknown
-  ) => Promise<SimpleSubscriptionInterface>;
+  ): this;
+
+  /**
+   * Needs to accommodate connection-level error handling and events
+   */
+  on(event: "connect", listener: () => void): this;
+  on(event: "disconnect", listener: () => void): this;
+  on(event: "error", listener: (e: Error) => void): this;
+  removeListener(
+    event: "receive" | "disconnect" | "error",
+    listener: () => void
+  ): this;
+  removeAllListeners(event?: "connect" | "disconnect" | "error"): this;
 
   /**
    * Close the connection
    */
-  close: () => Promise<unknown>;
+  close(): Promise<unknown>;
 }
 
 /**
@@ -58,43 +81,17 @@ export interface SimpleSubscriberInterface {
  * trying to figure out when and where a message is expected to be in it's final form. That
  * job should be delegated to higher level libraries.
  */
-export interface SimpleSubscriptionMessageInterface {
+export interface SimplePubSubMessageInterface {
   content: string | Buffer;
   extra?: unknown;
 }
 
 /**
- * An interface describing an event subscription
- *
- * This is basically a very small subset of node's native EventEmitter interface, meaning
- * you can implement the interface by simply extending EventEmitter if you'd like.
- */
-export interface SimpleSubscriptionInterface {
-  on: (
-    event: "receive" | "disconnect" | "error",
-    listener: (
-      channel: string,
-      routingKey: string,
-      msg: SimpleSubscriptionMessageInterface,
-      options?: unknown
-    ) => void
-  ) => SimpleSubscriptionInterface;
-  removeListener: (
-    event: "receive" | "disconnect" | "error",
-    listener: (
-      channel: string,
-      routingKey: string,
-      msg: SimpleSubscriptionMessageInterface,
-      options?: unknown
-    ) => void
-  ) => SimpleSubscriptionInterface;
-  removeAllListeners: (event?: "receive" | "disconnect" | "error") => SimpleSubscriptionInterface;
-}
-
-/**
  * An interface that presents a pub/sub client
  */
-export interface SimplePubSubInterface extends SimplePublisherInterface, SimpleSubscriberInterface { }
+export interface SimplePubSubInterface
+  extends SimplePublisherInterface,
+    SimpleSubscriberInterface {}
 
 /**
  * An interface that provides a good starting point for a typical Event
@@ -135,7 +132,7 @@ export interface SimpleSubmittedTask {
   id?: string;
 
   /** A stack of event ID that caused this event to be produced, if applicable */
-  parents?: Array<string> | null
+  parents?: Array<string> | null;
 
   /** The domain in which the task was produced*/
   domain?: string;
@@ -144,10 +141,9 @@ export interface SimpleSubmittedTask {
   method: string;
 
   /** The parameters to be supplied (see JsonRpc spec) */
-  params?: (
-    { [name: string]: string | number | boolean | object | null } |
-    Array<string | number | boolean | object | null>
-  );
+  params?:
+    | { [name: string]: string | number | boolean | object | null }
+    | Array<string | number | boolean | object | null>;
 
   /** Misc extra data */
   meta?: unknown;
@@ -155,10 +151,7 @@ export interface SimpleSubmittedTask {
 export interface SimpleTask extends SimpleSubmittedTask {
   id: string;
   domain: string;
-};
-
-
-
+}
 
 /*****************************************************
  * Datasource
@@ -227,11 +220,12 @@ export interface SimpleSqlDbInterface {
  * Most of these properties are optional, since they are rarely used and many developers will
  * choose not to implement them.
  */
-export interface SimpleSqlResponseInterface<T extends unknown> extends SimpleDatasetInterface<T> {
+export interface SimpleSqlResponseInterface<T extends unknown>
+  extends SimpleDatasetInterface<T> {
   /**
    * The number of rows affected by a create, update or delete action
    */
-  readonly affectedRows?: number|null;
+  readonly affectedRows?: number | null;
 
   /**
    * The total number of rows a SELECT query would have returned had it not had a limit applied
@@ -239,14 +233,26 @@ export interface SimpleSqlResponseInterface<T extends unknown> extends SimpleDat
   readonly totalRows?: number | null;
 }
 
-
-
 /****************************************************
  * HTTP
  ***************************************************/
 
-type LowerCaseHttpMethods = "get" | "delete" | "head" | "options" | "post" | "put" | "patch";
-type UpperCaseHttpMethods = "GET" | "DELETE" | "HEAD" | "OPTIONS" | "POST" | "PUT" | "PATCH";
+type LowerCaseHttpMethods =
+  | "get"
+  | "delete"
+  | "head"
+  | "options"
+  | "post"
+  | "put"
+  | "patch";
+type UpperCaseHttpMethods =
+  | "GET"
+  | "DELETE"
+  | "HEAD"
+  | "OPTIONS"
+  | "POST"
+  | "PUT"
+  | "PATCH";
 export type HttpMethods = LowerCaseHttpMethods | UpperCaseHttpMethods;
 
 /**
@@ -256,8 +262,8 @@ export interface SimpleHttpClientRequestConfig {
   url?: string;
   baseURL?: string;
   method?: HttpMethods;
-  headers?: { [headerName: string]: Array<string>|string|undefined };
-  params?: { [paramKey: string]: string|number|null|undefined };
+  headers?: { [headerName: string]: Array<string> | string | undefined };
+  params?: { [paramKey: string]: string | number | null | undefined };
   data?: any;
   timeout?: number;
   maxRedirects?: number;
@@ -269,7 +275,7 @@ export interface SimpleHttpClientRequestConfig {
  * A simple HTTP Response interface (reduced clone of AxiosResponse) representing a response
  * object received by an HTTP Client in response to a request made to a server.
  */
-export interface SimpleHttpClientResponseInterface<T = any>  {
+export interface SimpleHttpClientResponseInterface<T = any> {
   data: T;
   status: number;
   headers: any;
@@ -296,7 +302,7 @@ export interface SimpleHttpServerRequestInterface {
    * generics. It's much better to leave it vague and to force developers to do runtime checks
    * on the incoming data.
    */
-  params: { [key: string]: string; };
+  params: { [key: string]: string };
 
   /**
    * Query parameters
@@ -389,10 +395,16 @@ export interface SimpleHttpServerResponseInterface {
    * Aliased as `res.header()`.
    */
   set(field: any): SimpleHttpServerResponseInterface;
-  set(field: string, value?: string | string[]): SimpleHttpServerResponseInterface;
+  set(
+    field: string,
+    value?: string | string[]
+  ): SimpleHttpServerResponseInterface;
 
   header(field: any): SimpleHttpServerResponseInterface;
-  header(field: string, value?: string | string[]): SimpleHttpServerResponseInterface;
+  header(
+    field: string,
+    value?: string | string[]
+  ): SimpleHttpServerResponseInterface;
 
   /** Get value for header `field`. */
   get(field: string): string;
@@ -455,7 +467,9 @@ export interface SimpleHttpRequestHandlerInterface {
     middleware: SimpleHttpServerMiddleware | Array<SimpleHttpServerMiddleware>
   ): SimpleHttpRequestHandlerInterface;
   catch(
-    errorHandler: SimpleHttpServerErrorHandler | Array<SimpleHttpServerErrorHandler>
+    errorHandler:
+      | SimpleHttpServerErrorHandler
+      | Array<SimpleHttpServerErrorHandler>
   ): SimpleHttpRequestHandlerInterface;
 
   all: (
@@ -500,14 +514,14 @@ export interface SimpleHttpRequestHandlerInterface {
  * more of the control around setup and listening is retained by a framework.
  */
 export interface SimpleHttpServerInterface
-extends SimpleHttpRequestHandlerInterface {
-  listen(port: number, hostname: string, listeningCallback?: (...args: any[]) => void): unknown;
+  extends SimpleHttpRequestHandlerInterface {
+  listen(
+    port: number,
+    hostname: string,
+    listeningCallback?: (...args: any[]) => void
+  ): unknown;
   listen(port: number, listeningCallback?: (...args: any[]) => void): unknown;
 }
-
-
-
-
 
 /****************************************************
  * Logging
@@ -528,8 +542,15 @@ export interface SimpleLogLevels {
   critical: SimpleLeveledLogMethod;
   emergency: SimpleLeveledLogMethod;
 }
-export type SimpleLogMethod = (level: keyof SimpleLogLevels, message: string, ...meta: any[]) => SimpleLoggerInterface;
-export type SimpleLeveledLogMethod = (message: string, ...meta: any[]) => SimpleLoggerInterface;
+export type SimpleLogMethod = (
+  level: keyof SimpleLogLevels,
+  message: string,
+  ...meta: any[]
+) => SimpleLoggerInterface;
+export type SimpleLeveledLogMethod = (
+  message: string,
+  ...meta: any[]
+) => SimpleLoggerInterface;
 
 export interface SimpleLoggerInterface extends SimpleLogLevels {
   log: SimpleLogMethod;
@@ -542,9 +563,71 @@ export interface SimpleLoggerConsumerInterface {
   setLogger: (logger: SimpleLoggerInterface) => unknown;
 }
 
+/**
+ * This is one of the few concrete implementations that is justified in being here, since it is so
+ * commonly used and is so light weight.
+ */
+export class TaggedLogger implements SimpleLoggerInterface {
+  protected logger: SimpleLoggerInterface;
+  protected header: string;
+
+  public constructor(header: string, logger: SimpleLoggerInterface) {
+    if (this.isTaggedLogger(logger)) {
+      this.header = `${logger.header} ${header}`;
+      this.logger = logger.logger;
+    } else {
+      this.header = header;
+      this.logger = logger;
+    }
+  }
+
+  public log(
+    level: keyof SimpleLogLevels,
+    msg: string,
+    ...meta: Array<any>
+  ): SimpleLoggerInterface {
+    return this.logger.log(level, `${this.header} ${msg}`, ...meta);
+  }
+
+  public debug(msg: string, ...meta: Array<any>) {
+    return this.logger.debug(`${this.header} ${msg}`, ...meta);
+  }
+
+  public info(msg: string, ...meta: Array<any>) {
+    return this.logger.info(`${this.header} ${msg}`, ...meta);
+  }
+
+  public notice(msg: string, ...meta: Array<any>) {
+    return this.logger.notice(`${this.header} ${msg}`, ...meta);
+  }
+
+  public warning(msg: string, ...meta: Array<any>) {
+    return this.logger.warning(`${this.header} ${msg}`, ...meta);
+  }
+
+  public error(msg: string, ...meta: Array<any>) {
+    return this.logger.error(`${this.header} ${msg}`, ...meta);
+  }
+
+  public alert(msg: string, ...meta: Array<any>) {
+    return this.logger.alert(`${this.header} ${msg}`, ...meta);
+  }
+
+  public critical(msg: string, ...meta: Array<any>) {
+    return this.logger.critical(`${this.header} ${msg}`, ...meta);
+  }
+
+  public emergency(msg: string, ...meta: Array<any>) {
+    return this.logger.emergency(`${this.header} ${msg}`, ...meta);
+  }
+
+  protected isTaggedLogger(l: any): l is TaggedLogger {
+    return typeof l.header === "string";
+  }
+}
+
 /****************************************************
  * Errors
  * **************************************************/
 import * as Errors from "@openfinance/http-errors";
 export { Errors };
-
