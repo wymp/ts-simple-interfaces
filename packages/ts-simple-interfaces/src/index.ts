@@ -24,9 +24,9 @@ export interface SimplePublisherInterface {
   /**
    * Needs to accommodate connection-level error handling and events
    */
+  on(event: "error", listener: (e: Error) => void): this;
   on(event: "connect", listener: () => void): this;
   on(event: "disconnect", listener: () => void): this;
-  on(event: "error", listener: (e: Error) => void): this;
   removeListener(
     event: "receive" | "disconnect" | "error",
     listener: () => void
@@ -54,14 +54,14 @@ export interface SimpleSubscriberInterface {
       log: SimpleLoggerInterface
     ) => Promise<boolean>,
     options?: unknown
-  ): this;
+  ): Promise<void>;
 
   /**
    * Needs to accommodate connection-level error handling and events
    */
+  on(event: "error", listener: (e: Error) => void): this;
   on(event: "connect", listener: () => void): this;
   on(event: "disconnect", listener: () => void): this;
-  on(event: "error", listener: (e: Error) => void): this;
   removeListener(
     event: "receive" | "disconnect" | "error",
     listener: () => void

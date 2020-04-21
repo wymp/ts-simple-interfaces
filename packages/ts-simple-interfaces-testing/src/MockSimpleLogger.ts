@@ -6,7 +6,7 @@ declare type Opts = {
 
 export class MockSimpleLogger implements SimpleLoggerInterface {
   protected _loggedMessages: string[] = [];
-  protected opts: Opts;
+  public readonly opts: Opts;
 
   public constructor(opts: Opts = {}) {
     if (!opts) {

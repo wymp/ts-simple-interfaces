@@ -1,4 +1,5 @@
 import { SimplePublisherInterface } from "ts-simple-interfaces";
+import { EventEmitter } from "events";
 
 interface MethodCall {
   method: string;
@@ -6,7 +7,12 @@ interface MethodCall {
 }
 
 export class MockSimplePublisher implements SimplePublisherInterface {
+  protected emitter: EventEmitter;
   protected _calls: MethodCall[] = [];
+
+  public constructor() {
+    this.emitter = new EventEmitter();
+  }
 
   public publish(
     channel: string,
@@ -24,6 +30,30 @@ export class MockSimplePublisher implements SimplePublisherInterface {
 
   public async close(...rest: any[]) {
     this.register("close", rest);
+  }
+
+  public on(event: "error", listener: (e: Error) => void): this;
+  public on(event: "connect", listener: () => void): this;
+  public on(event: "disconnect", listener: () => void): this;
+  public on(
+    event: "connect" | "disconnect" | "error",
+    listener: ((e: Error) => void) | (() => void)
+  ): this {
+    this.emitter.on(event, listener);
+    return this;
+  }
+
+  public removeListener(
+    event: "receive" | "disconnect" | "error",
+    listener: () => void
+  ): this {
+    this.emitter.removeListener(event, listener);
+    return this;
+  }
+
+  public removeAllListeners(event?: "connect" | "disconnect" | "error"): this {
+    this.emitter.removeAllListeners(event);
+    return this;
   }
 
   get calls(): any[] {
