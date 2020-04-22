@@ -29,8 +29,8 @@ export interface SimpleAmqpMessage extends SimplePubSubMessageInterface {
     redelivered: boolean;
     appId?: string;
     type?: string;
-    timestamp?: number;
-    messageId?: string;
+    timestamp: number;
+    messageId: string;
     headers?: { [k: string]: string | number };
     contentEncoding?: string;
     contentType?: string;
@@ -79,7 +79,7 @@ export interface Backoff {
 declare type RoutingKey = string;
 declare type Subscription = {
   routes: { [exchange: string]: Array<RoutingKey> };
-  handler: (msg: SimplePubSubMessageInterface, log: SimpleLoggerInterface) => Promise<boolean>;
+  handler: (msg: SimpleAmqpMessage, log: SimpleLoggerInterface) => Promise<boolean>;
   options: SubscriptionOptions;
 };
 declare type SubscriptionQueue = Array<Subscription>;
@@ -97,6 +97,8 @@ declare type SubscriptionQueue = Array<Subscription>;
  *
  *
  */
+
+export interface SimpleAmqpConfig extends amqp.Options.Connect {}
 
 export interface SimpleAmqpConnection {
   close(): Promise<void>;
@@ -153,7 +155,9 @@ export interface SimpleAmqpChannel {
  *
  *
  */
-export class SimplePubSubAmqp implements SimplePubSubInterface {
+export class SimplePubSubAmqp
+  implements
+    SimplePubSubInterface<SimpleAmqpMessage, unknown, SubscriptionOptions, PublishOptions> {
   protected cnx: SimpleAmqpConnection | null = null;
   protected ch: SimpleAmqpChannel | null = null;
   protected subscriptions: SubscriptionQueue = [];
@@ -169,7 +173,7 @@ export class SimplePubSubAmqp implements SimplePubSubInterface {
   private reloadTimer: any = null;
 
   public constructor(
-    protected config: amqp.Options.Connect,
+    protected config: SimpleAmqpConfig,
     protected log: SimpleLoggerInterface,
     deps?: {
       backoff?: Backoff;
@@ -336,7 +340,7 @@ export class SimplePubSubAmqp implements SimplePubSubInterface {
       };
 
       const log = new TaggedLogger(
-        `MQ: ${qopts.name}: ${m.extra.messageId ? `${m.extra.messageId}: ` : ``}`,
+        `MQ: ${qopts.name}:${m.extra.messageId ? ` ${m.extra.messageId}:` : ``}`,
         this.log
       );
 
@@ -454,4 +458,80 @@ export class SimplePubSubAmqp implements SimplePubSubInterface {
       this.reloadTimer = null;
     }
   }
+}
+
+/**
+ * It will be common for projects to want to further specify their incoming and outgoing message
+ * formats. However, doing so will be incompatible with the base PubSubInterface used by the
+ * above class, and thus extending will not work.
+ *
+ * Following is an abstract adapter class allowing projects to define their message types more
+ * specifically without having to do much work.
+ */
+export abstract class AbstractPubSubAmqp<
+  SubMsg,
+  PubMsg,
+  SubOpts = SubscriptionOptions,
+  PubOpts = PublishOptions
+> implements SimplePubSubInterface<SubMsg, PubMsg, SubOpts, PubOpts> {
+  private _driver: SimplePubSubAmqp;
+
+  public constructor(
+    protected config: SimpleAmqpConfig,
+    protected log: SimpleLoggerInterface,
+    deps?: {
+      backoff?: Backoff;
+      amqpConnect?: (
+        url: string | SimpleAmqpConfig,
+        socketOptions?: any
+      ) => Promise<SimpleAmqpConnection>;
+    }
+  ) {
+    this._driver = new SimplePubSubAmqp(config, log, deps);
+  }
+
+  protected get driver() {
+    return this._driver;
+  }
+
+  public get waiting() {
+    return this.driver.waiting;
+  }
+
+  public async connect(): Promise<void> {
+    return this.driver.connect();
+  }
+
+  public on(event: "error", listener: (e: Error) => void): this;
+  public on(event: "connect", listener: () => void): this;
+  public on(event: "disconnect", listener: () => void): this;
+  public on(
+    event: "connect" | "disconnect" | "error",
+    listener: ((e: Error) => void) | (() => void)
+  ): this {
+    this.driver.on(<any>event, listener);
+    return this;
+  }
+
+  public removeListener(event: "receive" | "disconnect" | "error", listener: () => void): this {
+    this.driver.removeListener(event, listener);
+    return this;
+  }
+
+  public removeAllListeners(event?: "connect" | "disconnect" | "error"): this {
+    this.driver.removeAllListeners(event);
+    return this;
+  }
+
+  public async close(): Promise<unknown> {
+    return this.driver.close();
+  }
+
+  public abstract subscribe(
+    routes: { [channel: string]: Array<RoutingKey> },
+    handler: (msg: SubMsg, log: SimpleLoggerInterface) => Promise<boolean>,
+    options: SubOpts
+  ): Promise<void>;
+
+  public abstract publish(channel: string, msg: PubMsg, options: PubOpts): Promise<void>;
 }

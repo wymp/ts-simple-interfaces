@@ -9,7 +9,7 @@
  * the msg parameter. This allows implementations to choose their own valid message
  * formats.
  */
-export interface SimplePublisherInterface {
+export interface SimplePublisherInterface<MsgType, Options = unknown> {
   /**
    * Publish a message to a channel.
    *
@@ -19,7 +19,7 @@ export interface SimplePublisherInterface {
    * all necessary information for your implementation of the publisher to specify
    * the correct routing parameters.
    */
-  publish(channel: string, msg: unknown, options?: unknown): Promise<void>;
+  publish(channel: string, msg: MsgType, options?: Options): Promise<void>;
 
   /**
    * Needs to accommodate connection-level error handling and events
@@ -46,14 +46,14 @@ export interface SimplePublisherInterface {
  * like 'app.created.users'.
  */
 declare type RoutingKey = string;
-export interface SimpleSubscriberInterface {
+export interface SimpleSubscriberInterface<
+  MsgType = SimplePubSubMessageInterface,
+  Options = unknown
+> {
   subscribe(
     routes: { [channel: string]: Array<RoutingKey> },
-    handler: (
-      msg: SimplePubSubMessageInterface,
-      log: SimpleLoggerInterface
-    ) => Promise<boolean>,
-    options?: unknown
+    handler: (msg: MsgType, log: SimpleLoggerInterface) => Promise<boolean>,
+    options?: Options
   ): Promise<void>;
 
   /**
@@ -81,17 +81,22 @@ export interface SimpleSubscriberInterface {
  * trying to figure out when and where a message is expected to be in it's final form. That
  * job should be delegated to higher level libraries.
  */
-export interface SimplePubSubMessageInterface {
+export interface SimplePubSubMessageInterface<Extra = unknown> {
   content: string | Buffer;
-  extra?: unknown;
+  extra?: Extra;
 }
 
 /**
  * An interface that presents a pub/sub client
  */
-export interface SimplePubSubInterface
-  extends SimplePublisherInterface,
-    SimpleSubscriberInterface {}
+export interface SimplePubSubInterface<
+  SubMsgType = SimplePubSubMessageInterface,
+  PubMsgType = unknown,
+  SubOptions = unknown,
+  PubOptions = unknown
+>
+  extends SimplePublisherInterface<PubMsgType, PubOptions>,
+    SimpleSubscriberInterface<SubMsgType, SubOptions> {}
 
 /**
  * An interface that provides a good starting point for a typical Event
@@ -109,9 +114,6 @@ export interface SimpleSubmittedEvent {
   /** The domain in which the event was produced*/
   domain?: string;
 
-  /** The event type (may be coincident with the routing key in AMQP systems) */
-  type?: string;
-
   /** A stack of event ID that caused this event to be produced, if applicable */
   parentIds?: Array<string> | null;
 
@@ -119,6 +121,7 @@ export interface SimpleSubmittedEvent {
   meta?: unknown;
 }
 export interface SimpleEvent extends SimpleSubmittedEvent {
+  type: "event";
   id: string;
   timestamp: number;
   domain: string;
@@ -149,9 +152,12 @@ export interface SimpleSubmittedTask {
   meta?: unknown;
 }
 export interface SimpleTask extends SimpleSubmittedTask {
+  type: "task";
   id: string;
   domain: string;
 }
+
+export type SimpleMessage = SimpleEvent | SimpleTask;
 
 /*****************************************************
  * Datasource
