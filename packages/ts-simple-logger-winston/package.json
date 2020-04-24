@@ -1,6 +1,6 @@
 {
   "name": "simple-logger-winston",
-  "version": "0.4.0-rc.1",
+  "version": "0.4.0-rc.2",
   "description": "A Simple™-conformant wrapper around winston logger",
   "main": "dist/index.js",
   "scripts": {
@@ -10,7 +10,7 @@
   "author": "Kael Shipman <kael.shipman@gmail.com>",
   "license": "ISC",
   "dependencies": {
-    "ts-simple-interfaces": "^0.1.0 || ^0.2.0 || ^0.3.0 || 0.4.0-rc.1",
+    "ts-simple-interfaces": "^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0-rc.2",
     "winston": "^3.2.1"
   },
   "devDependencies": {

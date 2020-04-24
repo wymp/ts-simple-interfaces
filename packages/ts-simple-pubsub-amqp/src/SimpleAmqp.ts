@@ -210,7 +210,7 @@ export class SimplePubSubAmqp
     return this._waiting;
   }
 
-  public async connect(): Promise<void> {
+  public async connect(): Promise<this> {
     // Establish the connection and failover
     this.cnx = await this.amqpConnect(this.config);
     this.cnx.on("error", (e: Error) => {
@@ -228,6 +228,7 @@ export class SimplePubSubAmqp
 
     this.emitter.emit("connect");
     this._waiting = false;
+    return this;
   }
 
   public on(event: "error", listener: (e: Error) => void): this;
@@ -241,7 +242,18 @@ export class SimplePubSubAmqp
     return this;
   }
 
-  public removeListener(event: "receive" | "disconnect" | "error", listener: () => void): this {
+  public once(event: "error", listener: (e: Error) => void): this;
+  public once(event: "connect", listener: () => void): this;
+  public once(event: "disconnect", listener: () => void): this;
+  public once(
+    event: "connect" | "disconnect" | "error",
+    listener: ((e: Error) => void) | (() => void)
+  ): this {
+    this.emitter.once(event, listener);
+    return this;
+  }
+
+  public removeListener(event: "connect" | "disconnect" | "error", listener: () => void): this {
     this.emitter.removeListener(event, listener);
     return this;
   }
@@ -468,12 +480,7 @@ export class SimplePubSubAmqp
  * Following is an abstract adapter class allowing projects to define their message types more
  * specifically without having to do much work.
  */
-export abstract class AbstractPubSubAmqp<
-  SubMsg,
-  PubMsg,
-  SubOpts = SubscriptionOptions,
-  PubOpts = PublishOptions
-> implements SimplePubSubInterface<SubMsg, PubMsg, SubOpts, PubOpts> {
+export abstract class AbstractPubSubAmqp {
   private _driver: SimplePubSubAmqp;
 
   public constructor(
@@ -498,8 +505,8 @@ export abstract class AbstractPubSubAmqp<
     return this.driver.waiting;
   }
 
-  public async connect(): Promise<void> {
-    return this.driver.connect();
+  public async connect(): Promise<this> {
+    return this.driver.connect().then(() => this);
   }
 
   public on(event: "error", listener: (e: Error) => void): this;
@@ -513,7 +520,18 @@ export abstract class AbstractPubSubAmqp<
     return this;
   }
 
-  public removeListener(event: "receive" | "disconnect" | "error", listener: () => void): this {
+  public once(event: "error", listener: (e: Error) => void): this;
+  public once(event: "connect", listener: () => void): this;
+  public once(event: "disconnect", listener: () => void): this;
+  public once(
+    event: "connect" | "disconnect" | "error",
+    listener: ((e: Error) => void) | (() => void)
+  ): this {
+    this.driver.once(<any>event, listener);
+    return this;
+  }
+
+  public removeListener(event: "connect" | "disconnect" | "error", listener: () => void): this {
     this.driver.removeListener(event, listener);
     return this;
   }
@@ -526,12 +544,4 @@ export abstract class AbstractPubSubAmqp<
   public async close(): Promise<unknown> {
     return this.driver.close();
   }
-
-  public abstract subscribe(
-    routes: { [channel: string]: Array<RoutingKey> },
-    handler: (msg: SubMsg, log: SimpleLoggerInterface) => Promise<boolean>,
-    options: SubOpts
-  ): Promise<void>;
-
-  public abstract publish(channel: string, msg: PubMsg, options: PubOpts): Promise<void>;
 }

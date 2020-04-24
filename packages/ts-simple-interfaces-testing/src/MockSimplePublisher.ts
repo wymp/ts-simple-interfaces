@@ -44,8 +44,19 @@ export class MockSimplePublisher
     return this;
   }
 
+  public once(event: "error", listener: (e: Error) => void): this;
+  public once(event: "connect", listener: () => void): this;
+  public once(event: "disconnect", listener: () => void): this;
+  public once(
+    event: "connect" | "disconnect" | "error",
+    listener: ((e: Error) => void) | (() => void)
+  ): this {
+    this.emitter.once(event, listener);
+    return this;
+  }
+
   public removeListener(
-    event: "receive" | "disconnect" | "error",
+    event: "connect" | "disconnect" | "error",
     listener: () => void
   ): this {
     this.emitter.removeListener(event, listener);

@@ -27,8 +27,11 @@ export interface SimplePublisherInterface<MsgType, Options = unknown> {
   on(event: "error", listener: (e: Error) => void): this;
   on(event: "connect", listener: () => void): this;
   on(event: "disconnect", listener: () => void): this;
+  once(event: "error", listener: (e: Error) => void): this;
+  once(event: "connect", listener: () => void): this;
+  once(event: "disconnect", listener: () => void): this;
   removeListener(
-    event: "receive" | "disconnect" | "error",
+    event: "connect" | "disconnect" | "error",
     listener: () => void
   ): this;
   removeAllListeners(event?: "connect" | "disconnect" | "error"): this;
@@ -62,8 +65,11 @@ export interface SimpleSubscriberInterface<
   on(event: "error", listener: (e: Error) => void): this;
   on(event: "connect", listener: () => void): this;
   on(event: "disconnect", listener: () => void): this;
+  once(event: "error", listener: (e: Error) => void): this;
+  once(event: "connect", listener: () => void): this;
+  once(event: "disconnect", listener: () => void): this;
   removeListener(
-    event: "receive" | "disconnect" | "error",
+    event: "connect" | "disconnect" | "error",
     listener: () => void
   ): this;
   removeAllListeners(event?: "connect" | "disconnect" | "error"): this;
@@ -455,7 +461,7 @@ export interface SimpleHttpServerMiddleware {
 }
 export interface SimpleHttpServerErrorHandler {
   (
-    e: Error,
+    e: any,
     req: SimpleHttpServerRequestInterface,
     res: SimpleHttpServerResponseInterface,
     next: SimpleHttpServerNextFunction
