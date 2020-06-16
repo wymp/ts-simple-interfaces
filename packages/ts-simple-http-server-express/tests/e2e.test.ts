@@ -1,5 +1,5 @@
 import "jest";
-import { SimpleHttpServerExpress } from "../src";
+import { SimpleHttpServerExpress, Parsers } from "../src";
 import { MockSimpleLogger } from "ts-simple-interfaces-testing";
 import { SimpleHttpClientRpn } from "simple-http-client-rpn";
 
@@ -13,12 +13,12 @@ describe("End-To-End Tests", () => {
     });
 
     afterEach(() => {
-      instances.map((i) => i.close());
+      instances.map(i => i.close());
     });
 
     test("should respond to basic GET calls", async () => {
       const srv = new SimpleHttpServerExpress(
-        { listeners: [ [ 3210, "localhost" ] ] },
+        { listeners: [[3210, "localhost"]] },
         new MockSimpleLogger()
       );
 
@@ -38,10 +38,15 @@ describe("End-To-End Tests", () => {
 
       // Start the server
       await new Promise((res, rej) => {
-        instances = srv.listen((listener) => res());
+        instances = srv.listen(listener => res());
       });
 
-      const res = await request.request<{ path: string; params: any; query: any; typeTest: boolean; }>({
+      const res = await request.request<{
+        path: string;
+        params: any;
+        query: any;
+        typeTest: boolean;
+      }>({
         baseURL: "http://localhost:3210",
         url: "/test/my/path?q=2&r=3",
       });
@@ -59,10 +64,14 @@ describe("End-To-End Tests", () => {
 
     test("should respond to basic POST requests", async () => {
       const srv = new SimpleHttpServerExpress(
-        { listeners: [ [ 3210, "localhost" ] ] },
+        { listeners: [[3210, "localhost"]] },
         new MockSimpleLogger({ outputMessages: false })
       );
 
+      // Parse json requests
+      srv.use(Parsers.json());
+
+      // Handle the test endpoint
       srv.post("/test/:path1/:path2", (req, res, next) => {
         try {
           res.status(201).send({
@@ -86,7 +95,7 @@ describe("End-To-End Tests", () => {
 
       // Start the server
       await new Promise((res, rej) => {
-        instances = srv.listen((listener) => res());
+        instances = srv.listen(listener => res());
       });
 
       const res = await request.request<{
@@ -118,13 +127,14 @@ describe("End-To-End Tests", () => {
       expect(res.data.path).toBe("/test/my/path");
       expect(JSON.stringify(res.data.params)).toBe(JSON.stringify({ path1: "my", path2: "path" }));
       expect(JSON.stringify(res.data.query)).toBe(JSON.stringify({ q: "2", r: "3" }));
-      expect(JSON.stringify(res.data.body))
-        .toBe(JSON.stringify({ something: "whiney", tasty: true }));
+      expect(JSON.stringify(res.data.body)).toBe(
+        JSON.stringify({ something: "whiney", tasty: true })
+      );
     });
 
     test("should properly handle errors on error handler registration", async () => {
-      const log = new MockSimpleLogger({ outputMessages: false })
-      const srv = new SimpleHttpServerExpress({ listeners: [ [ 3210, "localhost" ] ] }, log);
+      const log = new MockSimpleLogger({ outputMessages: false });
+      const srv = new SimpleHttpServerExpress({ listeners: [[3210, "localhost"]] }, log);
 
       srv.post("/test/:path1/:path2", (req, res, next) => {
         log.notice(`Param: ${req.params.path1}`);
@@ -132,21 +142,21 @@ describe("End-To-End Tests", () => {
         log.notice(`Body: ${req.body.something}`);
         next(new Error("This is a test error that should be caught"));
       });
-      srv.catch((e, req ,res, next) => {
+      srv.catch((e, req, res, next) => {
         log.error(`Error: ${e.message}`);
         res.status(500).send({
           error: {
-            message: e.message
-          }
+            message: e.message,
+          },
         });
       });
 
       // Start the server
       await new Promise((res, rej) => {
-        instances = srv.listen((listener) => res());
+        instances = srv.listen(listener => res());
       });
 
-      const res = await request.request<{ error: { message: string; }; }>({
+      const res = await request.request<{ error: { message: string } }>({
         method: "post",
         baseURL: "http://localhost:3210",
         url: "/test/my/path?q=2&r=3",
