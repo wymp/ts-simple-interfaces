@@ -368,6 +368,12 @@ export class SimplePubSubAmqp
   }
 
   public async publish(channel: string, msg: unknown, options: PublishOptions): Promise<void> {
+    // Fill in default options
+    options.timestamp = options.timestamp || Date.now();
+    options.messageId = options.messageId || uuid.v4();
+    options.persistent = typeof options.persistent === "undefined" ? true : options.persistent;
+
+    // Now try to publish
     return new Promise((res, rej) => {
       const timeout = 10000;
       let elapsed = 0;
@@ -391,17 +397,7 @@ export class SimplePubSubAmqp
               Buffer.isBuffer(msg)
                 ? msg
                 : Buffer.from(typeof msg === "string" ? msg : JSON.stringify(msg), "utf8"),
-              {
-                appId: options.appId,
-                type: options.type,
-                timestamp: options.timestamp || Date.now(),
-                messageId: options.messageId || uuid.v4(),
-                headers: options.headers,
-                contentEncoding: options.contentEncoding,
-                contentType: options.contentType,
-                expiration: options.expiration,
-                persistent: typeof options.persistent === "undefined" ? true : options.persistent,
-              }
+              options
             );
           };
 
