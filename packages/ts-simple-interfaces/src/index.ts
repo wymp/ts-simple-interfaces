@@ -221,10 +221,12 @@ export interface SimpleDatasetInterface<T extends unknown> {
  * intended to help unify the various implementations of SQL databases out in the wild, such
  * that they may be more plug-and-playable.
  */
+export type SqlPrimitive = string | number | boolean | Buffer | Date | null;
+export type SqlValue = SqlPrimitive | Array<SqlValue>;
 export interface SimpleSqlDbInterface {
   query: <T extends unknown>(
     query: string,
-    params?: Array<string | number | boolean | Buffer | Date | null>
+    params?: Array<SqlValue>
   ) => Promise<SimpleSqlResponseInterface<T>>;
 }
 

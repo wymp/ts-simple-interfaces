@@ -1,6 +1,6 @@
 {
   "name": "simple-db-mysql",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "A Simple™-conformant wrapper around mysql",
   "main": "dist/index.js",
   "scripts": {
@@ -12,7 +12,7 @@
   "dependencies": {
     "mysql2": "^2.1.0",
     "@types/mysql2": "types/mysql2#master",
-    "ts-simple-interfaces": "^0.2.0 || ^0.3.0 || ^0.4.0"
+    "ts-simple-interfaces": "^0.4.1"
   },
   "devDependencies": {
     "@types/jest": "^24.0.15",
