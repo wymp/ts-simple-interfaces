@@ -643,5 +643,5 @@ export class TaggedLogger implements SimpleLoggerInterface {
 /****************************************************
  * Errors
  * **************************************************/
-import * as Errors from "@openfinance/http-errors";
+import * as Errors from "@openfinanceio/http-errors";
 export { Errors };
