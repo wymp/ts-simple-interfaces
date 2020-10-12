@@ -1,12 +1,12 @@
 {
   "name": "simple-http-client-axios",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "A Simple™-conformant wrapper around Axios",
   "repository": "https://github.com/kael-shipman/ts-simple-interfaces/tree/master/packages/ts-simple-http-client-axios",
   "main": "dist/index.js",
   "scripts": {
     "test": "jest tests/",
-    "prepublishOnly": "tsc"
+    "prepublishOnly": "rm -Rf dist; tsc"
   },
   "author": "Kael Shipman <kael.shipman@gmail.com>",
   "license": "ISC",
@@ -18,7 +18,7 @@
     "@types/jest": "^24.0.15",
     "jest": "^24.9.0",
     "ts-jest": "^24.0.2",
-    "typescript": "^3.8.3"
+    "typescript": "^3.8.3 || ^4.0.0"
   },
   "jest": {
     "transform": {

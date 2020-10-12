@@ -1,6 +1,7 @@
 import {
   SimpleSqlDbInterface,
-  SimpleSqlResponseInterface
+  SimpleSqlResponseInterface,
+  SqlValue
 } from "ts-simple-interfaces";
 import { Md5 } from "ts-md5/dist/md5";
 
@@ -48,7 +49,7 @@ export class MockSimpleSqlDb implements SimpleSqlDbInterface {
 
   public query(
     query: string,
-    params?: Array<string | number | boolean | Buffer | Date | null>
+    params?: Array<SqlValue>
   ): Promise<SimpleSqlResponseInterface<any>> {
     if (this.closed) {
       throw new Error(

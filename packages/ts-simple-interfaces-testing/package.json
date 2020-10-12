@@ -1,6 +1,6 @@
 {
   "name": "ts-simple-interfaces-testing",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "This library supplies testing utilities like stubs, spies and fixtures, for testing applications that utilize SimpleInterface implementations.",
   "author": "Kael Shipman<kael.shipman@gmail.com>",
   "homepage": "https://github.com/kael-shipman/ts-simple-interfaces",
@@ -13,7 +13,7 @@
     "dist/**/*"
   ],
   "scripts": {
-    "prepublishOnly": "tsc"
+    "prepublishOnly": "rm -Rf dist; tsc"
   },
   "license": "MIT",
   "repository": {
@@ -26,6 +26,6 @@
   },
   "devDependencies": {
     "@types/node": "^10.14.12",
-    "typescript": "^3.8.3"
+    "typescript": "^3.8.3 || ^4.0.0"
   }
 }
