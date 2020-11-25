@@ -15,7 +15,11 @@ export class MockSimpleLogger implements SimpleLoggerInterface {
     this.opts = opts;
   }
 
-  get messages() {
+  public setOpt<T extends keyof Opts>(opt: T, val: Opts[T]): void {
+    this.opts[opt] = val;
+  }
+
+  public get messages() {
     return this._loggedMessages;
   }
 
