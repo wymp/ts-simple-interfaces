@@ -9,11 +9,7 @@ import * as rpn from "request-promise-native";
 import * as req from "request";
 
 export interface SimpleRpnRequestConfig extends SimpleHttpClientRequestConfig {
-  transform?: (
-    body: any,
-    response: req.Response,
-    resolveWithFullResponse?: boolean
-  ) => any;
+  transform?: (body: any, response: req.Response, resolveWithFullResponse?: boolean) => any;
   transform2xxOnly?: boolean;
   json?: any;
   removeRefererHeader?: boolean;
@@ -23,7 +19,7 @@ export interface SimpleRpnRequestConfig extends SimpleHttpClientRequestConfig {
 export class SimpleHttpClientRpn implements SimpleHttpClientInterface {
   protected rpn: rpn.RequestPromiseAPI;
 
-  constructor(deps?: { rpn?: rpn.RequestPromiseAPI }, protected logger?: SimpleLoggerInterface) {
+  constructor(deps?: { rpn?: rpn.RequestPromiseAPI }) {
     if (deps && deps.rpn) {
       this.rpn = deps.rpn;
     } else {
@@ -34,7 +30,8 @@ export class SimpleHttpClientRpn implements SimpleHttpClientInterface {
   // TODO: Implement handling for throwErrors option
   // TODO: Implement special data handling for rpn-specific options
   public request<T extends any>(
-    config: SimpleRpnRequestConfig
+    config: SimpleRpnRequestConfig,
+    log?: SimpleLoggerInterface
   ): Promise<SimpleHttpClientResponseInterface<T>> {
     config.url = config.url!;
     const rpnConfig: rpn.OptionsWithUrl = {
@@ -72,7 +69,7 @@ export class SimpleHttpClientRpn implements SimpleHttpClientInterface {
         let data: T | null = null;
         if (r.headers) {
           const contentType = Object.entries(r.headers).find(
-            (v) => v[0].toLowerCase() === "content-type"
+            v => v[0].toLowerCase() === "content-type"
           );
           if (
             contentType &&
@@ -80,30 +77,27 @@ export class SimpleHttpClientRpn implements SimpleHttpClientInterface {
             typeof r.body === "string" &&
             r.body.length > 0
           ) {
-            this.log("debug", "SimpleHttpClientRPN: Parsing body from string");
+            if (log) {
+              log.debug("SimpleHttpClientRPN: Parsing body from string");
+            }
             data = <T>JSON.parse(r.body);
           }
         }
 
         if (data === null) {
-          this.log("debug", "SimpleHttpClientRPN: Using raw body from response.");
+          if (log) {
+            log.debug("SimpleHttpClientRPN: Using raw body from response.");
+          }
           data = r.body;
         }
 
         return {
-          data: data!,
           status: r.statusCode,
+          data: data!,
           headers: r.headers,
-          config
+          config,
         };
       }
     );
-  }
-
-  protected log(level: keyof SimpleLogLevels, msg: string): this {
-    if (this.logger) {
-      this.logger.log(level, msg);
-    }
-    return this;
   }
 }

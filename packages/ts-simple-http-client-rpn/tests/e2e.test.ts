@@ -1,6 +1,9 @@
 import "jest";
 import { SimpleHttpClientRpn } from "../src";
-import { SimpleHttpResponseInterface } from "ts-simple-interfaces";
+import { SimpleHttpClientResponseInterface } from "ts-simple-interfaces";
+import { MockSimpleLogger } from "ts-simple-interfaces-testing";
+
+const log = new MockSimpleLogger();
 
 declare interface Todo {
   id: number;
@@ -18,9 +21,9 @@ declare interface Post {
 
 test("Can get API response", async () => {
   const client = new SimpleHttpClientRpn();
-  const r: SimpleHttpResponseInterface = await client.request<Todo>({
+  const r: SimpleHttpClientResponseInterface = await client.request<Todo>({
     url: "https://jsonplaceholder.typicode.com/todos/1",
-  });
+  }, log);
 
   expect(r.status).toBe(200);
   expect(typeof r.data).toBe("object");
@@ -32,7 +35,7 @@ test("Can get API response", async () => {
 
 test("Can POST to an API", async () => {
   const client = new SimpleHttpClientRpn();
-  const r: SimpleHttpResponseInterface = await client.request<Post>({
+  const r: SimpleHttpClientResponseInterface = await client.request<Post>({
     method: "POST",
     url: "https://jsonplaceholder.typicode.com/posts",
     headers: {
@@ -45,7 +48,7 @@ test("Can POST to an API", async () => {
       "cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet " +
       "architecto"
     }
-  });
+  }, log);
 
   expect(r.status).toBe(201);
   expect(typeof r.data).toBe("object");
