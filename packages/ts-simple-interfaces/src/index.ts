@@ -304,7 +304,8 @@ export interface SimpleHttpClientResponseInterface<T = any> {
  */
 export interface SimpleHttpClientInterface {
   request: <T = unknown>(
-    config: SimpleHttpClientRequestConfig
+    config: SimpleHttpClientRequestConfig,
+    _log?: SimpleLoggerInterface
   ) => Promise<SimpleHttpClientResponseInterface<T>>;
 }
 
