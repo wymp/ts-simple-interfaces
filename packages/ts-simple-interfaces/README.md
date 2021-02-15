@@ -1,10 +1,14 @@
 Simple Interfaces for Typescript
 ===============================================================================
 
-> 
-> **NOTE:** This library is experimental right now and in active alpha development. While you may
-> feel free to use it, it is expected to change considerably.
-> 
+
+**NOTE:** This library is experimental right now and in active alpha development. While you may
+feel free to use it, it is expected to change considerably.
+
+**NOTE: As of v0.5.0 this project is now mantained by [Wymp](https://github.com/wymp) and the
+package is published on github. Please use `@wymp/ts-simple-interfaces` for future versions of
+this package. (This will require setting up an `.npmrc` file at some level with the following line:
+`@wymp:registry=https://npm.pkg.github.com/wymp`.)**
 
 ## TL;DR
 
@@ -12,8 +16,8 @@ The "Simple" suite of packages should be considered a collection of interfaces (
 package) along with a collection of concrete implementations (defined in other packages prefaced
 with `simple-`) that allow you to write code that is highly portable and highly testable.
 
-The idea is that your code should always use the _simple interfaces,_ for function argument types
-and return types, and that you should then pass in the concrete implementations that you wish to
+The idea is that your code should always use the _simple interfaces,_ for function argument types,
+and that you should then pass in the concrete implementations that you wish to
 use.
 
 For example, your application may require an HTTP client, like Axios or Request Promise Native.
@@ -50,6 +54,15 @@ const data = myClient.getSomeData();
 // ....
 ```
 
+Doing this means that if for any reason in the future it Axios goes out of production or becomes
+problematic, you can easily switch to a different implementation with minimal adjustments.
+
+Note that the idea is not necessarily that there be _no_ adjustments. Individual implementations
+have varying features that you may want to use. However, sticking to Simple-conformant
+implementations not only minimizes the adjustments you have to make when migrating, but it also
+increases your options for testing, as other people can focus on building robust, widely
+applicable test implementations that conform to the general Simple interfaces and can be dropped in
+with no modifications, or at least only minor ones.
 
 ## Longer Overview
 
@@ -92,9 +105,17 @@ Following is a list of implementations by interface:
 * [`simple-http-client-rpn`](../ts-simple-http-client-rpn)
 * [`simple-http-client-axios`](../ts-simple-http-client-axios)
 
+### `SimpleHttpRequestHandlerInterface`
+
+* [`simple-http-server-express`](../ts-simple-http-server-express)
+
 ### `SimpleLoggerInterface`
 
 * [`simple-logger-winston`](../ts-simple-logger-winston)
+
+### `SimplePubSubInterface`
+
+* [`simple-pubsub-amqp`](../ts-simple-pubsub-amqp)
 
 ### `SimpleSqlDbInterface`
 
@@ -118,9 +139,9 @@ these interfaces. For example:
 
 ```ts
 // src/MyDatasource.ts
-import { SimpleDatasourceInterface } from "simple-interfaces";
+import { SimpleDatasourceInterface } from "ts-simple-interfaces";
 
-export class MyDatasource implements SimpleDataInterface {
+export class MyDatasource implements SimpleDatasourceInterface {
   ....
 }
 ```
@@ -129,7 +150,7 @@ export class MyDatasource implements SimpleDataInterface {
 ## API
 
 The best way to understand the API is by just looking at the declarations file
-[here](https://github.com/kael-shipman/ts-simple-interfaces/blob/master/packages/ts-simple-interfaces/src/index.ts).
+[here](https://github.com/wymp/ts-simple-interfaces/blob/current/packages/ts-simple-interfaces/src/index.ts).
 
 
 ## Footnotes

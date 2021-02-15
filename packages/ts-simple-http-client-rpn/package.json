@@ -1,6 +1,6 @@
 {
   "name": "simple-http-client-rpn",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "A Simple™-conformant wrapper around request-promise-native",
   "main": "dist/index.js",
   "scripts": {

@@ -2,14 +2,18 @@
 
 _A Simple™-conformant wrapper around ExpressJS_
 
-> 
-> **NOTE:** This library is experimental right now and in active alpha development. While you may
-> feel free to use it, it is expected to change considerably.
-> 
+
+**NOTE:** This library is experimental right now and in active alpha development. While you may
+feel free to use it, it is expected to change considerably.
+
+**SECOND NOTE: As of v0.5.0 this project is now mantained by [Wymp](https://github.com/wymp) and the
+package is published on github. Please use `@wymp/ts-simple-http-server-express` for future versions
+of this package. (This will require setting up an `.npmrc` file at some level with the following line:
+`@wymp:registry=https://npm.pkg.github.com/wymp`.)**
 
 This package provides a light wrapper around ExpressJS that enforces conformity with the
 `SimpleHttpServerInterface` defined in
-[`ts-simple-interfaces`](https://github.com/kael-shipman/ts-simple-interfaces/tree/master/packages/ts-simple-interfaces).
+[`ts-simple-interfaces`](https://github.com/wymp/ts-simple-interfaces/tree/current/packages/ts-simple-interfaces).
 
 See that package for information about the interface.
 

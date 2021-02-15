@@ -1,6 +1,6 @@
 {
   "name": "simple-http-client-axios",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "A Simple™-conformant wrapper around Axios",
   "repository": "https://github.com/kael-shipman/ts-simple-interfaces/tree/master/packages/ts-simple-http-client-axios",
   "main": "dist/index.js",
