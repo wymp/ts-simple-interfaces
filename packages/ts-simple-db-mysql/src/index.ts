@@ -1,5 +1,9 @@
 import * as mysql from "mysql2";
-import { SimpleSqlDbInterface, SimpleSqlResponseInterface, SqlValue } from "ts-simple-interfaces";
+import {
+  SimpleSqlDbInterface,
+  SimpleSqlResponseInterface,
+  SqlValue,
+} from "@wymp/ts-simple-interfaces";
 
 /**
  * mysql2 types don't export PromisePool type, so we have to replicate what we need here

@@ -4,7 +4,7 @@ import {
   SimpleHttpClientInterface,
   SimpleLogLevels,
   SimpleLoggerInterface,
-} from "ts-simple-interfaces";
+} from "@wymp/ts-simple-interfaces";
 import * as rpn from "request-promise-native";
 import * as req from "request";
 

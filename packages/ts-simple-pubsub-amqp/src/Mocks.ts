@@ -1,7 +1,7 @@
 import { EventEmitter } from "events";
 import * as AmqpProps from "amqplib/properties";
 import { SimpleAmqpConnection, SimpleAmqpChannel } from "./SimpleAmqp";
-import { SimpleLoggerInterface, TaggedLogger } from "ts-simple-interfaces";
+import { SimpleLoggerInterface, TaggedLogger } from "@wymp/ts-simple-interfaces";
 import * as uuid from "uuid";
 
 export class MockAmqpCnx implements SimpleAmqpConnection {

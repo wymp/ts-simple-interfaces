@@ -6,7 +6,7 @@ import {
   SimplePubSubMessageInterface,
   SimpleLoggerInterface,
   TaggedLogger,
-} from "ts-simple-interfaces";
+} from "@wymp/ts-simple-interfaces";
 import { EventEmitter } from "events";
 
 /**

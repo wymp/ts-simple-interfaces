@@ -1,9 +1,11 @@
 {
-  "name": "simple-http-client-axios",
-  "version": "0.4.2",
+  "name": "@wymp/simple-http-client-axios",
+  "version": "0.5.0",
   "description": "A Simple™-conformant wrapper around Axios",
-  "repository": "https://github.com/kael-shipman/ts-simple-interfaces/tree/master/packages/ts-simple-http-client-axios",
+  "repository": "https://github.com/wymp/ts-simple-interfaces",
+  "bugs": "https://github.com/wymp/ts-simple-interfaces/issues",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "jest tests/",
     "prepublishOnly": "rm -Rf dist; tsc"
@@ -12,7 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.19.0",
-    "ts-simple-interfaces": "^0.2.0 || ^0.3.0 || ^0.4.0"
+    "@wymp/ts-simple-interfaces": "^0.2.0 || ^0.3.0 || ^0.4.0 || ^0.5.0"
   },
   "devDependencies": {
     "@types/jest": "^24.0.15",

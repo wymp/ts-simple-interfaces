@@ -1,18 +1,21 @@
 {
-  "name": "simple-db-mysql",
-  "version": "0.4.4",
+  "name": "@wymp/simple-db-mysql",
+  "version": "0.5.0",
   "description": "A Simple™-conformant wrapper around mysql",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "jest tests/",
     "prepublishOnly": "rm -Rf dist; tsc"
   },
   "author": "Kael Shipman <kael.shipman@gmail.com>",
   "license": "ISC",
+  "repository": "https://github.com/wymp/ts-simple-interfaces",
+  "bugs": "https://github.com/wymp/ts-simple-interfaces/issues",
   "dependencies": {
     "mysql2": "^2.1.0",
     "@types/mysql2": "types/mysql2#master",
-    "ts-simple-interfaces": "^0.4.1"
+    "@wymp/ts-simple-interfaces": "^0.4.1 || ^0.5.0"
   },
   "devDependencies": {
     "@types/jest": "^24.0.15",

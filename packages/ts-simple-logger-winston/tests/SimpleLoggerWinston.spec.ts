@@ -1,5 +1,5 @@
 import { SimpleLoggerWinston } from "../src/";
-import { SimpleLoggerInterface } from "ts-simple-interfaces";
+import { SimpleLoggerInterface } from "@wymp/ts-simple-interfaces";
 import * as winston from "winston";
 
 const log: SimpleLoggerInterface = new SimpleLoggerWinston({
@@ -18,7 +18,9 @@ describe("SimpleLoggerWinston", () => {
     "emergency"
   ] as Array<keyof SimpleLoggerInterface>) {
     it(`should successfully log ${level} messages`, () => {
-      expect(() => { return (log[level] as any)(`Testing ${level} messages`) }).not.toThrow();
+      expect(() => {
+        return (log[level] as any)(`Testing ${level} messages`);
+      }).not.toThrow();
     });
   }
 });

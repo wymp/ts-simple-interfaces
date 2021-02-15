@@ -1,19 +1,21 @@
 import {
   SimpleHttpClientInterface,
   SimpleHttpClientRequestConfig,
-  SimpleHttpClientResponseInterface,
-} from "ts-simple-interfaces";
+  SimpleHttpClientResponseInterface
+} from "@wymp/ts-simple-interfaces";
 
 export class MockSimpleHttpClient implements SimpleHttpClientInterface {
   protected responses: {
-    [key: string]: Array<SimpleHttpClientResponseInterface|NodeJS.ErrnoException>
+    [key: string]: Array<
+      SimpleHttpClientResponseInterface | NodeJS.ErrnoException
+    >;
   } = {};
 
   protected _requests: Array<SimpleHttpClientRequestConfig> = [];
 
   public setNextResponse(
     key: string,
-    response: SimpleHttpClientResponseInterface|NodeJS.ErrnoException
+    response: SimpleHttpClientResponseInterface | NodeJS.ErrnoException
   ): void {
     if (!this.responses.hasOwnProperty(key)) {
       this.responses[key] = [response];
@@ -32,15 +34,19 @@ export class MockSimpleHttpClient implements SimpleHttpClientInterface {
     }
 
     // Derive key
-    const key = `${config.method || ""} ${config.baseURL || ""}${config.url || ""}`;
+    const key = `${config.method || ""} ${config.baseURL || ""}${config.url ||
+      ""}`;
 
     // Throw if no response set
-    if (!this.responses.hasOwnProperty(key) || this.responses[key].length === 0) {
+    if (
+      !this.responses.hasOwnProperty(key) ||
+      this.responses[key].length === 0
+    ) {
       throw new Error(
         `Received HTTP request for ${key}, but there is no response configured for that ` +
-        `request. Use 'setNextResponse("${key}", yourResponse)' to set a response. (Note that ` +
-        `'yourResponse' should be either a SimpleHttpResponseInterface or an ErrnoException.)` +
-        `\n\nRequest Config:\n\n${JSON.stringify(config, null, 2)}`
+          `request. Use 'setNextResponse("${key}", yourResponse)' to set a response. (Note that ` +
+          `'yourResponse' should be either a SimpleHttpResponseInterface or an ErrnoException.)` +
+          `\n\nRequest Config:\n\n${JSON.stringify(config, null, 2)}`
       );
     }
 

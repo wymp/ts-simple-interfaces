@@ -1,7 +1,7 @@
 import "jest";
 import { SimpleHttpClientRpn } from "../src";
-import { SimpleHttpClientResponseInterface } from "ts-simple-interfaces";
-import { MockSimpleLogger } from "ts-simple-interfaces-testing";
+import { SimpleHttpClientResponseInterface } from "@wymp/ts-simple-interfaces";
+import { MockSimpleLogger } from "@wymp/ts-simple-interfaces-testing";
 
 const log = new MockSimpleLogger();
 
@@ -21,9 +21,12 @@ declare interface Post {
 
 test("Can get API response", async () => {
   const client = new SimpleHttpClientRpn();
-  const r: SimpleHttpClientResponseInterface = await client.request<Todo>({
-    url: "https://jsonplaceholder.typicode.com/todos/1",
-  }, log);
+  const r: SimpleHttpClientResponseInterface = await client.request<Todo>(
+    {
+      url: "https://jsonplaceholder.typicode.com/todos/1",
+    },
+    log
+  );
 
   expect(r.status).toBe(200);
   expect(typeof r.data).toBe("object");
@@ -35,20 +38,24 @@ test("Can get API response", async () => {
 
 test("Can POST to an API", async () => {
   const client = new SimpleHttpClientRpn();
-  const r: SimpleHttpClientResponseInterface = await client.request<Post>({
-    method: "POST",
-    url: "https://jsonplaceholder.typicode.com/posts",
-    headers: {
-      "Content-Type": "application/json"
+  const r: SimpleHttpClientResponseInterface = await client.request<Post>(
+    {
+      method: "POST",
+      url: "https://jsonplaceholder.typicode.com/posts",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: {
+        userId: 1,
+        title: "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
+        body:
+          "quia et suscipit\nsuscipit recusandae consequuntur expedita et " +
+          "cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet " +
+          "architecto",
+      },
     },
-    data: {
-      userId: 1,
-      title: "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-      body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et " +
-      "cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet " +
-      "architecto"
-    }
-  }, log);
+    log
+  );
 
   expect(r.status).toBe(201);
   expect(typeof r.data).toBe("object");
@@ -57,4 +64,3 @@ test("Can POST to an API", async () => {
   expect(typeof r.data.title).toBe("string");
   expect(typeof r.data.body).toBe("string");
 });
-

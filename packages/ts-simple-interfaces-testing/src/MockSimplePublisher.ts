@@ -1,4 +1,4 @@
-import { SimplePublisherInterface } from "ts-simple-interfaces";
+import { SimplePublisherInterface } from "@wymp/ts-simple-interfaces";
 import { EventEmitter } from "events";
 
 interface MethodCall {

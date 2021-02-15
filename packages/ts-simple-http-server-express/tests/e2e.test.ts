@@ -1,6 +1,6 @@
 import "jest";
 import { SimpleHttpServerExpress, Parsers } from "../src";
-import { MockSimpleLogger } from "ts-simple-interfaces-testing";
+import { MockSimpleLogger } from "@wymp/ts-simple-interfaces-testing";
 import { SimpleHttpClientRpn } from "simple-http-client-rpn";
 
 describe("End-To-End Tests", () => {

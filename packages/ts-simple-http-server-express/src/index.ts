@@ -8,7 +8,7 @@ import {
   SimpleHttpServerNextFunction,
   SimpleHttpServerErrorHandler,
   SimpleLoggerInterface,
-} from "ts-simple-interfaces";
+} from "@wymp/ts-simple-interfaces";
 
 /**
  * Body-Parser exports for convenience

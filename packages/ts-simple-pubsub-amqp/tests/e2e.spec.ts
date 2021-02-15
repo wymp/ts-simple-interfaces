@@ -1,6 +1,6 @@
 import { SimplePubSubAmqp, MockAmqpCnx } from "../src";
-import { SimplePubSubMessageInterface, SimpleLoggerInterface } from "ts-simple-interfaces";
-import { MockSimpleLogger } from "ts-simple-interfaces-testing";
+import { SimplePubSubMessageInterface, SimpleLoggerInterface } from "@wymp/ts-simple-interfaces";
+import { MockSimpleLogger } from "@wymp/ts-simple-interfaces-testing";
 import { EventEmitter } from "events";
 //import * as sinon from "sinon";
 

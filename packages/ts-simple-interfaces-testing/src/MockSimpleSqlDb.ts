@@ -2,7 +2,7 @@ import {
   SimpleSqlDbInterface,
   SimpleSqlResponseInterface,
   SqlValue
-} from "ts-simple-interfaces";
+} from "@wymp/ts-simple-interfaces";
 import { Md5 } from "ts-md5/dist/md5";
 
 interface MockDbConfig {

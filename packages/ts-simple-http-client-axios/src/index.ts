@@ -1,25 +1,19 @@
 import {
   SimpleHttpClientRequestConfig,
   SimpleHttpClientResponseInterface,
-  SimpleHttpClientInterface,
-} from "ts-simple-interfaces";
-import
-  axios,
-  {
-    AxiosRequestConfig,
-    AxiosResponse,
-    AxiosStatic,
-    AxiosInstance,
-  }
-from "axios";
+  SimpleHttpClientInterface
+} from "@wymp/ts-simple-interfaces";
+import axios, {
+  AxiosRequestConfig,
+  AxiosResponse,
+  AxiosStatic,
+  AxiosInstance
+} from "axios";
 
 export class SimpleHttpClientAxios implements SimpleHttpClientInterface {
   protected axios: AxiosInstance;
 
-  constructor(
-    config?: AxiosRequestConfig,
-    deps?: { axios?: AxiosInstance }
-  ) {
+  constructor(config?: AxiosRequestConfig, deps?: { axios?: AxiosInstance }) {
     if (deps && deps.axios) {
       this.axios = deps.axios;
     } else {
@@ -37,9 +31,8 @@ export class SimpleHttpClientAxios implements SimpleHttpClientInterface {
           status: r.status,
           headers: r.headers,
           config
-        }
+        };
       }
     );
   }
 }
-
