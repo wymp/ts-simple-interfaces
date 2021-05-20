@@ -1,6 +1,6 @@
 {
   "name": "@wymp/simple-db-mysql",
-  "version": "0.5.0",
+  "version": "0.5.2",
   "description": "A Simple™-conformant wrapper around mysql",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

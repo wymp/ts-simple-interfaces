@@ -180,7 +180,7 @@ export interface SimpleDatasourceInterface {
    * `get` is meant to accept a structured DSL query serialized to string. This may
    * be a human-readable string, such as `email = 'me@myself.com' and active = true`,
    * or it may be a JSON-serialized DSL query such as those defined by the
-   * [dsl-queries](https://www.npmjs.com/package/@openfinance/dsl-queries) package.
+   * [dsl-queries](https://github.com/wymp/ts-dsl-queries) package.
    *
    * Either way, this function is to return at least a simple dataset interface,
    * and may return something more complex depending on your implementation.
@@ -299,7 +299,7 @@ export interface SimpleHttpClientResponseInterface<T = any> {
 /**
  * This defines a simple HTTP interface which can dress Axios, Request-Promise-Native, etc.
  *
- * It should throw an HttpError (see [@openfinance/http-errors](https://npmjs.com/@openfinance/http-errors))
+ * It should throw an HttpError (see [@wymp/http-errors](https://github.com/wymp/ts-http-errors))
  * on status codes >= 400.
  */
 export interface SimpleHttpClientInterface {
@@ -644,5 +644,5 @@ export class TaggedLogger implements SimpleLoggerInterface {
 /****************************************************
  * Errors
  * **************************************************/
-import * as Errors from "@openfinanceio/http-errors";
+import * as Errors from "@wymp/http-errors";
 export { Errors };

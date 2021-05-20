@@ -1,6 +1,6 @@
 {
   "name": "@wymp/ts-simple-interfaces-testing",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "This library supplies testing utilities like stubs, spies and fixtures, for testing applications that utilize SimpleInterface implementations.",
   "author": "Kael Shipman<kael.shipman@gmail.com>",
   "homepage": "https://github.com/kael-shipman/ts-simple-interfaces",
@@ -21,7 +21,7 @@
     "@wymp/ts-simple-interfaces": "^0.4.0 || ^0.5.0"
   },
   "devDependencies": {
-    "@types/node": "^10.14.12",
-    "typescript": "^3.8.3 || ^4.0.0"
+    "@types/node": "^10.17.60",
+    "typescript": "^4.2.4"
   }
 }
