@@ -471,22 +471,7 @@ export interface SimpleHttpServerErrorHandler {
   ): unknown;
 }
 
-/**
- * This defines a simple request handler that allows you to add global middleware and error
- * handling, as well as routing per http method. It used to support the idea of a collection of
- * app-local variables, but upon further consideration it was determined that there is not enough
- * perceived value added by that system to really continue its existence.
- */
-export interface SimpleHttpRequestHandlerInterface {
-  use(
-    middleware: SimpleHttpServerMiddleware | Array<SimpleHttpServerMiddleware>
-  ): SimpleHttpRequestHandlerInterface;
-  catch(
-    errorHandler:
-      | SimpleHttpServerErrorHandler
-      | Array<SimpleHttpServerErrorHandler>
-  ): SimpleHttpRequestHandlerInterface;
-
+export interface SimpleHttpRequestHandlerBasicInterface {
   all: (
     route: string | RegExp | Array<string | RegExp>,
     handlers: SimpleHttpServerMiddleware | Array<SimpleHttpServerMiddleware>
@@ -519,6 +504,24 @@ export interface SimpleHttpRequestHandlerInterface {
     route: string | RegExp | Array<string | RegExp>,
     handlers: SimpleHttpServerMiddleware | Array<SimpleHttpServerMiddleware>
   ) => SimpleHttpRequestHandlerInterface;
+}
+
+/**
+ * This defines a simple request handler that allows you to add global middleware and error
+ * handling, as well as routing per http method. It used to support the idea of a collection of
+ * app-local variables, but upon further consideration it was determined that there is not enough
+ * perceived value added by that system to really continue its existence.
+ */
+export interface SimpleHttpRequestHandlerInterface
+  extends SimpleHttpRequestHandlerBasicInterface {
+  use(
+    middleware: SimpleHttpServerMiddleware | Array<SimpleHttpServerMiddleware>
+  ): SimpleHttpRequestHandlerInterface;
+  catch(
+    errorHandler:
+      | SimpleHttpServerErrorHandler
+      | Array<SimpleHttpServerErrorHandler>
+  ): SimpleHttpRequestHandlerInterface;
 }
 
 /**
