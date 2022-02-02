@@ -374,15 +374,17 @@ export class SimplePubSubAmqp
     options.persistent = typeof options.persistent === "undefined" ? true : options.persistent;
 
     // Now try to publish
-    return new Promise((res, rej) => {
+    return new Promise<void>((res, rej) => {
       const timeout = 10000;
+      const maxAttempts = 5;
       let elapsed = 0;
+      let attempts = 0;
       const publish = () => {
         if (this._waiting) {
           if (elapsed > timeout) {
             rej(
               new Error(
-                `Timed out after 10 seconds waiting to publish message. Something is wrong.`
+                `Timed out after 10 seconds waiting to publish message. Something is wrong with the connection.`
               )
             );
           } else {
@@ -390,8 +392,8 @@ export class SimplePubSubAmqp
             setTimeout(publish, 200);
           }
         } else {
-          const doit = () => {
-            return this.ch!.publish(
+          try {
+            const success = this.ch!.publish(
               channel,
               options.routingKey,
               Buffer.isBuffer(msg)
@@ -399,18 +401,27 @@ export class SimplePubSubAmqp
                 : Buffer.from(typeof msg === "string" ? msg : JSON.stringify(msg), "utf8"),
               options
             );
-          };
 
-          if (doit()) {
-            res();
-          } else {
-            this.ch!.once("drain", () => {
-              if (doit()) {
-                res();
-              } else {
-                rej(new Error(`Can't publish message to full buffer. Tried twice.`));
-              }
-            });
+            if (success) {
+              res();
+            } else {
+              // If we return false, then the buffer is full. Try again after the 'drain' event
+              this.ch!.once("drain", () => publish());
+            }
+          } catch (e) {
+            // If we caught an error, then call "tryAgain" to re-estabslish the connection and then try the publish again
+            const baseMsg = `Error publishing message: ${e.message} (attempt #${attempts}).`;
+            if (attempts >= maxAttempts) {
+              // If we've tried too many times, abort
+              rej(new Error(`${baseMsg} Too many retries. Failing.`));
+            } else {
+              // Otherwise, try again
+              this.log.error(`${baseMsg} Retrying.`);
+              attempts++;
+              this.tryAgain(e).then(() => {
+                publish();
+              });
+            }
           }
         }
       };

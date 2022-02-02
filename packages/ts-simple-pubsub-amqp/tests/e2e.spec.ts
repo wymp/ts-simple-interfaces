@@ -17,6 +17,10 @@ describe("SimplePubSubAmqp", () => {
     mockCnx = new MockAmqpCnx(log);
   });
 
+  afterEach(() => {
+    log.setOpt("outputMessages", false);
+  });
+
   test("Sets up simple subscriptions correctly via amqp", async () => {
     const ps = new SimplePubSubAmqp({}, log, { amqpConnect });
 
@@ -251,7 +255,35 @@ describe("SimplePubSubAmqp", () => {
     mockCnx.triggerError(new Error(`Something happened`));
     await new Promise(res => setTimeout(() => res(), 800));
     expect(mockCnx.channel!.calls.assertQueue.length).toBe(1);
-    expect(mockCnx.channel!).not.toBe(ch1);
+    expect(mockCnx.channel!.index).not.toBe(ch1.index);
+  });
+
+  test("rebinds and retries on error during publish", async () => {
+    const ps = new SimplePubSubAmqp({}, log, { amqpConnect });
+
+    // Set up error handling
+    ps.on("error", (e: Error) => {
+      log.debug(`Got error: ${e.message}`);
+    });
+
+    // Connect and then grab the channel
+    await ps.connect();
+    const ch = mockCnx.channel!;
+
+    // Set the channel up to throw some errors on the next publish
+    ch.publishReturnValueQueue = [
+      new Error("Channel error!"),
+      new Error("Another channel error!"),
+      new Error("A third channel error!"),
+      true,
+    ];
+
+    // Now try to publish
+    const msg = { my: "message", num: 1 };
+    await expect(
+      ps.publish(`my-exchange`, msg, { routingKey: "message.created" })
+    ).resolves.toBeUndefined();
+    expect(mockCnx.channel!.index).not.toBe(ch.index);
   });
 
   test("runs handlers through backoff (and nacks unsuccessfully run handlers)", async () => {

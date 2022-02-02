@@ -35,7 +35,9 @@ export class MockAmqpCnx implements SimpleAmqpConnection {
 
   createChannel(): Promise<MockAmqpChannel> {
     this.log.debug(`createChannel`);
-    this.ch = new MockAmqpChannel(this.log);
+
+    this.ch = new MockAmqpChannel(this.log, this.ch?.publishReturnValueQueue);
+
     return new Promise((res, rej) => {
       if (!this.manualResolve) {
         this.log.debug(`resolving immediately`);
@@ -59,19 +61,27 @@ export class MockAmqpCnx implements SimpleAmqpConnection {
   }
 }
 
+let channelIndex = 1;
 export class MockAmqpChannel implements SimpleAmqpChannel {
   private emitter: EventEmitter;
   private _calls: { [method: string]: Array<Array<any>> } = {};
+  private _index: number;
   protected subscriptions: { [queue: string]: Array<any> } = {};
-  public publishReturnValue: boolean = true;
 
-  public constructor(protected log: SimpleLoggerInterface) {
+  public constructor(
+    protected log: SimpleLoggerInterface,
+    public publishReturnValueQueue: Array<boolean | Error> = []
+  ) {
     this.log = new TaggedLogger("MockAmqpChannel:", this.log);
     this.emitter = new EventEmitter();
+    this._index = channelIndex++;
   }
 
   public get calls() {
     return this._calls;
+  }
+  public get index() {
+    return this._index;
   }
 
   close(): Promise<void> {
@@ -133,7 +143,21 @@ export class MockAmqpChannel implements SimpleAmqpChannel {
     options?: AmqpProps.Options.Publish
   ): boolean {
     this.register("publish", arguments);
-    return this.publishReturnValue;
+    // Get the next value, if set
+    let val: undefined | boolean | Error = this.publishReturnValueQueue.shift();
+
+    // If not set, default to true
+    if (val === undefined) {
+      val = true;
+    }
+
+    // If it's an error, throw the error
+    if (typeof val === "object") {
+      throw val;
+    } else {
+      // Otherwise, just return it
+      return val;
+    }
   }
 
   once(ev: "drain", handler: () => unknown) {
