@@ -1,5 +1,6 @@
-import * as express from "express";
 import * as bp from "body-parser";
+import * as express from "express";
+import { Server } from "http";
 import {
   SimpleHttpRequestHandlerInterface,
   SimpleHttpServerMiddleware,
@@ -164,7 +165,7 @@ export class SimpleHttpServerExpress implements SimpleHttpRequestHandlerInterfac
 
   public listen(
     userCallback?: (listener: [Port, Host | undefined], args: Array<unknown>) => unknown
-  ): Array<{ close: () => unknown }> {
+  ): Array<Server> {
     if (this.config.listeners.length === 0) {
       throw new Error(
         `You've called 'listen', but you haven't passed any listeners in your config.`

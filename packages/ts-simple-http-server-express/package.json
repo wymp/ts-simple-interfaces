@@ -1,6 +1,6 @@
 {
   "name": "@wymp/simple-http-server-express",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "A Simple™-conformant wrapper around ExpressJS",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
