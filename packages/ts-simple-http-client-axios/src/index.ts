@@ -24,15 +24,26 @@ export class SimpleHttpClientAxios implements SimpleHttpClientInterface {
   request<T extends any>(
     config: SimpleHttpClientRequestConfig
   ): Promise<SimpleHttpClientResponseInterface<T>> {
-    return this.axios.request<T>(config).then(
-      (r: AxiosResponse<T>): SimpleHttpClientResponseInterface<T> => {
-        return {
-          data: r.data,
-          status: r.status,
-          headers: r.headers,
-          config
-        };
-      }
-    );
+    const headers = Object.entries(config.headers || {})
+      .filter(
+        (row): row is [string, string | Array<string>] => row[1] !== undefined
+      )
+      .reduce<{ [k: string]: string }>((obj, entry) => {
+        obj[entry[0]] = Array.isArray(entry[1]) ? entry[1].join(",") : entry[1];
+        return obj;
+      }, {});
+
+    return this.axios
+      .request<T>({ ...config, headers })
+      .then(
+        (r: AxiosResponse<T>): SimpleHttpClientResponseInterface<T> => {
+          return {
+            data: r.data,
+            status: r.status,
+            headers: r.headers,
+            config
+          };
+        }
+      );
   }
 }
