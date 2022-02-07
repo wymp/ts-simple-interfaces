@@ -1,6 +1,6 @@
 {
   "name": "@wymp/ts-simple-interfaces",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "This library attempts to define a set of simplified interfaces for typescript that are compatible with common tools in the ecosystem.",
   "author": "Kael Shipman<kael.shipman@gmail.com>",
   "homepage": "https://github.com/kael-shipman/ts-simple-interfaces",
@@ -13,14 +13,15 @@
     "dist/**/*"
   ],
   "scripts": {
-    "prepublishOnly": "rm -Rf dist; tsc"
+    "docgen": "npx typedoc src/index.ts --out ./docs --sort visibility --sort source-order",
+    "prepublishOnly": "rm -Rf dist; npx tsc && npm run docgen"
   },
   "license": "MIT",
   "dependencies": {
-    "@wymp/http-errors": "^1.8.0"
+    "@wymp/http-errors": "^1.8.0 || ^2.0.0"
   },
   "devDependencies": {
-    "@types/node": "^10.17.28",
+    "typedoc": "^0.22.11",
     "typescript": "^3.9.7 || ^4.0.0"
   }
 }

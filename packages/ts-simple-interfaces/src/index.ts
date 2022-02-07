@@ -1,4 +1,30 @@
 /*****************************************************
+ * Infrastructure
+ */
+
+export type CharacterEncodings = "utf8" | "hex" | "base64" | "utf16";
+export interface BufferLike {
+  equals(otherBuffer: BufferLike): boolean;
+  toString(encoding?: string, start?: number, end?: number): string;
+  slice(start?: number, end?: number): BufferLike;
+  indexOf(
+    value: string | number | BufferLike,
+    byteOffset?: number,
+    encoding?: string
+  ): number;
+  lastIndexOf(
+    value: string | number | BufferLike,
+    byteOffset?: number,
+    encoding?: string
+  ): number;
+  includes(
+    value: string | number | BufferLike,
+    byteOffset?: number,
+    encoding?: string
+  ): boolean;
+}
+
+/*****************************************************
  * Pub/Sub
  *****************************************************/
 
@@ -88,7 +114,7 @@ export interface SimpleSubscriberInterface<
  * job should be delegated to higher level libraries.
  */
 export interface SimplePubSubMessageInterface<Extra = unknown> {
-  content: string | Buffer;
+  content: string | BufferLike;
   extra?: Extra;
 }
 
@@ -221,7 +247,7 @@ export interface SimpleDatasetInterface<T extends unknown> {
  * intended to help unify the various implementations of SQL databases out in the wild, such
  * that they may be more plug-and-playable.
  */
-export type SqlPrimitive = string | number | boolean | Buffer | Date | null;
+export type SqlPrimitive = string | number | boolean | BufferLike | Date | null;
 export type SqlValue = SqlPrimitive | Array<SqlValue>;
 export interface SimpleSqlDbInterface {
   query: <T extends unknown>(
@@ -390,7 +416,7 @@ export interface SimpleHttpServerResponseInterface {
    *
    * Examples:
    *
-   *     res.send(new Buffer('wahoo'));
+   *     res.send(Buffer.from('wahoo'));
    *     res.send({ some: 'json' });
    *     res.send('<p>some html</p>');
    *     res.status(404).send('Sorry, cant find that');
