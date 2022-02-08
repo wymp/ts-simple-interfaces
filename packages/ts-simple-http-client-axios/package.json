@@ -1,6 +1,6 @@
 {
   "name": "@wymp/simple-http-client-axios",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "A Simple™-conformant wrapper around Axios",
   "repository": "https://github.com/wymp/ts-simple-interfaces",
   "bugs": "https://github.com/wymp/ts-simple-interfaces/issues",

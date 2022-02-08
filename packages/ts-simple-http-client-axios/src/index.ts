@@ -39,8 +39,6 @@ export class SimpleHttpClientAxios implements SimpleHttpClientInterface {
       validateStatus: _config.throwErrors === false ? () => true : null
     };
 
-    console.log(`Axios config options: `, config);
-
     return this.axios.request<T>(config).then(
       (r: AxiosResponse<T>): SimpleHttpClientResponseInterface<T> => {
         return {
