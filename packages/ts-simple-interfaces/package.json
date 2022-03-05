@@ -1,6 +1,6 @@
 {
   "name": "@wymp/ts-simple-interfaces",
-  "version": "0.5.6",
+  "version": "0.6.0",
   "description": "This library attempts to define a set of simplified interfaces for typescript that are compatible with common tools in the ecosystem.",
   "author": "Kael Shipman<kael.shipman@gmail.com>",
   "homepage": "https://github.com/kael-shipman/ts-simple-interfaces",

@@ -259,6 +259,10 @@ export interface SimpleSqlDbInterface {
     query: string,
     params?: Array<SqlValue>
   ) => Promise<SimpleSqlResponseInterface<T>>;
+  transaction: <T extends unknown>(
+    queries: (cnx: SimpleSqlDbInterface) => Promise<T>,
+    txName?: string | null | undefined
+  ) => Promise<T>;
 }
 
 /**
