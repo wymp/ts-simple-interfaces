@@ -1,6 +1,6 @@
 {
   "name": "@wymp/simple-http-server-express",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "description": "A Simple™-conformant wrapper around ExpressJS",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -18,7 +18,7 @@
     "@types/node": "^10.14.12",
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
-    "@wymp/ts-simple-interfaces": "^0.4.0 || ^0.5.0"
+    "@wymp/ts-simple-interfaces": "^0.4.0 || ^0.5.0 || ^0.6.0"
   },
   "devDependencies": {
     "@types/jest": "^24.0.15",
@@ -27,8 +27,8 @@
     "prettier": "^1.18.2",
     "pretty-quick": "^1.11.1",
     "ts-jest": "^24.0.2",
-    "@wymp/ts-simple-interfaces-testing": "^0.2.0 || ^0.3.0 || ^0.4.0 || ^0.5.0",
-    "@wymp/simple-http-client-rpn": "^0.2.0 || ^0.3.0 || ^0.4.0 || ^0.5.0",
+    "@wymp/ts-simple-interfaces-testing": "^0.2.0 || ^0.3.0 || ^0.4.0 || ^0.5.0 || ^0.6.0",
+    "@wymp/simple-http-client-rpn": "^0.2.0 || ^0.3.0 || ^0.4.0 || ^0.5.0 || ^0.6.0",
     "typescript": "^3.8.3 || ^4.0.0"
   },
   "prettier": {
