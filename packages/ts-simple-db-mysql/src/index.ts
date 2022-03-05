@@ -8,7 +8,7 @@ import {
 /**
  * mysql2 types don't export PromisePool type, so we have to replicate what we need here
  */
-declare interface PromisePool {
+declare interface MysqlConnection {
   query<T extends mysql.RowDataPacket[] | mysql.OkPacket>(
     sql: string
   ): Promise<[T, mysql.FieldPacket[]]>;
@@ -16,7 +16,10 @@ declare interface PromisePool {
     sql: string,
     values: any | any[] | { [param: string]: any }
   ): Promise<[T, mysql.FieldPacket[]]>;
+}
 
+declare interface PromisePool extends MysqlConnection {
+  getConnection(): Promise<MysqlConnection & { release(): void }>;
   end: () => Promise<void>;
 }
 
@@ -31,8 +34,17 @@ export class SimpleDbMysql implements SimpleSqlDbInterface {
     q: string,
     params?: Array<SqlValue> | null
   ): Promise<SimpleSqlResponseInterface<T>> {
+    const cnx = await this.pool.getConnection();
+    return this._query<T>(q, params, cnx);
+  }
+
+  protected async _query<T = unknown>(
+    q: string,
+    params: Array<SqlValue> | null | undefined,
+    cnx: MysqlConnection
+  ) {
     const doit = async () => {
-      const result = params ? await this.pool.query(q, params) : await this.pool.query(q);
+      const result = params ? await cnx.query(q, params) : await cnx.query(q);
 
       // Our main function doesn't support multiple queries, so we know it can't be an array of
       // results. That means it will either be an "OkPacket" or an array of rows.
@@ -59,6 +71,28 @@ export class SimpleDbMysql implements SimpleSqlDbInterface {
         console.error(`SimpleDbMysql: Retrying query ${q} after deadlock.`);
       }
       i++;
+    }
+  }
+
+  public async transaction<T extends unknown>(
+    queries: (cnx: SimpleSqlDbInterface) => Promise<T>,
+    txName?: string | null | unknown
+  ): Promise<T> {
+    const cnx = await this.pool.getConnection();
+    await cnx.query("START TRANSACTION");
+    try {
+      const res = await queries(<SimpleSqlDbInterface>{
+        query: (q, params) => this._query(q, params, cnx),
+        transaction: (q, txName) => this.transaction(q, txName),
+        close: () => this.close(),
+      });
+      await cnx.query("COMMIT");
+      return res;
+    } catch (e) {
+      await cnx.query("ROLLBACK");
+      throw e;
+    } finally {
+      cnx.release();
     }
   }
 

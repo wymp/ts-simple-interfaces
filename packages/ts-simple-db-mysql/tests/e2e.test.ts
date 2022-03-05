@@ -19,7 +19,7 @@ describe("End-To-End Tests", () => {
     beforeEach(async () => {
       mysql = new SimpleDbMysql(config.db);
       await mysql.query(
-        "CREATE TABLE `test` (`id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT, `name` VARCHAR(50) NULL)"
+        "CREATE TABLE `test` (`id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT, `name` VARCHAR(50) NULL) ENGINE=InnoDB"
       );
     });
     afterEach(async () => {
@@ -80,6 +80,38 @@ describe("End-To-End Tests", () => {
       expect(r2.rows[2].id).toBe(10);
       expect(r2.rows[3].id).toBe(11);
       expect(r2.rows[4].id).toBe(20);
+    });
+
+    describe("Transactions", () => {
+      test("should successfully execute multiple statements", async () => {
+        await mysql.transaction(async cnx => {
+          await cnx.query("INSERT INTO `test` (`id`) VALUES (1)");
+          await cnx.query("INSERT INTO `test` (`id`) VALUES (2)");
+          await cnx.query("INSERT INTO `test` (`id`) VALUES (3)");
+        });
+
+        const test = await mysql.query<{ id: number }>("SELECT * FROM `test`");
+        expect(test.rows).toHaveLength(3);
+        expect(test.rows[0].id).toBe(1);
+        expect(test.rows[1].id).toBe(2);
+        expect(test.rows[2].id).toBe(3);
+      });
+
+      test("should successfully roll back statements in a transaction on error", async () => {
+        try {
+          await mysql.transaction(async cnx => {
+            await cnx.query("INSERT INTO `test` (`id`) VALUES (1)");
+            await cnx.query("INSERT INTO `test` (`id`) VALUES (2)");
+            await cnx.query("INSERT INTO `nope-doesn't-exist` (`id`) VALUES (3)");
+          });
+        } catch (e) {
+          // We knew this would happen, so nothing to do here
+          console.log(`Received the expected error: ${e.message}`);
+        }
+
+        const test = await mysql.query("SELECT * FROM `test`");
+        expect(test.rows).toHaveLength(0);
+      });
     });
   });
 });

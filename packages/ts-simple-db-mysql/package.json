@@ -1,6 +1,6 @@
 {
   "name": "@wymp/simple-db-mysql",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "description": "A Simple™-conformant wrapper around mysql",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -15,7 +15,7 @@
   "dependencies": {
     "mysql2": "^2.1.0",
     "@types/mysql2": "types/mysql2#master",
-    "@wymp/ts-simple-interfaces": "^0.4.1 || ^0.5.0"
+    "@wymp/ts-simple-interfaces": "^0.4.1 || ^0.5.0 || ^0.6.0"
   },
   "devDependencies": {
     "@types/jest": "^24.0.15",
