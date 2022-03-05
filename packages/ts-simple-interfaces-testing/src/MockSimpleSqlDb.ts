@@ -89,6 +89,13 @@ export class MockSimpleSqlDb implements SimpleSqlDbInterface {
     });
   }
 
+  public async transaction<T extends unknown>(
+    queries: (cnx: SimpleSqlDbInterface) => Promise<T>,
+    txName?: string | null | undefined
+  ): Promise<T> {
+    return await queries(this);
+  }
+
   public close(): void {
     if (this.config.throwOnClose) {
       throw new Error(
