@@ -220,7 +220,7 @@ describe("SimplePubSubAmqp", () => {
     );
 
     // Wait a bit and make sure no calls are made
-    await new Promise(res => setTimeout(() => res(), 800));
+    await new Promise<void>(res => setTimeout(() => res(), 800));
     expect(mockCnx.channel!.calls.assertQueue).not.toBeDefined();
 
     // Now resolve and check again
@@ -253,7 +253,7 @@ describe("SimplePubSubAmqp", () => {
 
     // Now throw an error and wait a minute and make sure assert queue was called again
     mockCnx.triggerError(new Error(`Something happened`));
-    await new Promise(res => setTimeout(() => res(), 800));
+    await new Promise<void>(res => setTimeout(() => res(), 800));
     expect(mockCnx.channel!.calls.assertQueue.length).toBe(1);
     expect(mockCnx.channel!.index).not.toBe(ch1.index);
   });
@@ -307,7 +307,7 @@ describe("SimplePubSubAmqp", () => {
 
     // Should wait one second to nack
     expect(mockCnx.channel!.calls.nack).not.toBeDefined();
-    await new Promise(res => setTimeout(() => res(), 1010));
+    await new Promise<void>(res => setTimeout(() => res(), 1010));
     expect(mockCnx.channel!.calls.nack).toBeDefined();
     expect(mockCnx.channel!.calls.nack.length).toBe(1);
   });
@@ -332,7 +332,7 @@ describe("SimplePubSubAmqp", () => {
     mockCnx.channel!.produceMessage("my-queue", JSON.stringify({ one: 1 }));
 
     // Should have acked
-    await new Promise(res => setTimeout(() => res(), 50));
+    await new Promise<void>(res => setTimeout(() => res(), 50));
     expect(mockCnx.channel!.calls.ack).toBeDefined();
     expect(mockCnx.channel!.calls.ack.length).toBe(1);
   });
