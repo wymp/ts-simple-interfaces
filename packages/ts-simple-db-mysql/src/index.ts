@@ -35,7 +35,11 @@ export class SimpleDbMysql implements SimpleSqlDbInterface {
     params?: Array<SqlValue> | null
   ): Promise<SimpleSqlResponseInterface<T>> {
     const cnx = await this.pool.getConnection();
-    return this._query<T>(q, params, cnx);
+    try {
+      return await this._query<T>(q, params, cnx);
+    } finally {
+      cnx.release();
+    }
   }
 
   protected async _query<T = unknown>(

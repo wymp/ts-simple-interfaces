@@ -82,6 +82,17 @@ describe("End-To-End Tests", () => {
       expect(r2.rows[4].id).toBe(20);
     });
 
+    test("should release connections after query", async () => {
+      // Limit to one connection in the pool
+      mysql = new SimpleDbMysql({ ...config.db, connectionLimit: 1 });
+
+      // Execute two queries in sequence
+      await mysql.query<{ id: string }>("SELECT * FROM `test`");
+      expect(true).toBe(true);
+      await mysql.query<{ id: string }>("SELECT * FROM `test`");
+      expect(true).toBe(true);
+    });
+
     describe("Transactions", () => {
       test("should successfully execute multiple statements", async () => {
         await mysql.transaction(async cnx => {
