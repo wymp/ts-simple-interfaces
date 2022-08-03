@@ -3,16 +3,34 @@ type SimpleLogLevels = keyof SLL;
 
 export class SimpleLoggerConsole implements SimpleLoggerInterface {
   protected _level: number = 20;
-  protected format: string = "[${level}] ${message}";
+  protected formatter: Opts["formatter"];
+  protected legacyFormat: string = "[${level}] ${message}";
 
-  public constructor(opts?: Partial<Opts>) {
-    if (opts) {
-      if (opts.level) {
-        this._level = this.levelMap[opts.level];
-      }
-      if (opts.format) {
-        this.format = opts.format;
-      }
+  public constructor(opts?: Partial<Opts & LegacyOpts>) {
+    if (opts?.level) {
+      this._level = this.levelMap[opts.level];
+    }
+    if (opts?.formatter) {
+      this.formatter = opts.formatter;
+    } else {
+      this.formatter = (level: string, message: string, ...args: Array<any>) => {
+        return this.legacyFormat
+          .replace(/\$\{timestamp\}/g, new Date().toISOString())
+          .replace(/\$\{level\}/g, level)
+          .replace(/\$\{message\}/g, message)
+          .replace(/\$\{meta\}/g, JSON.stringify(args));
+      };
+    }
+
+    // If we passed the legacy option "format", set it and warn
+    if (opts?.format) {
+      this.legacyFormat = opts.format;
+      console.warn(
+        `SimpleLoggerConsole: The logger option 'format' is deprecated. The new way is to ` +
+          `pass a function under the \`formatter\` key whose signature is as follows: ` +
+          `\`(level: string, message: string, ...args: Array<any>) => string;\`. ` +
+          `The \`format\` option will be removed in the future.`
+      );
     }
   }
 
@@ -32,63 +50,65 @@ export class SimpleLoggerConsole implements SimpleLoggerInterface {
   public log(_level: string, message: string, ...meta: any[]): this {
     const level = this.levelMap[<SimpleLogLevels>_level] || 10;
     if (level >= this._level) {
-      if (level < 40) {
-        console.log(this.formatMessage(_level, message, meta));
-      } else if (level === 40) {
-        console.warn(this.formatMessage(_level, message, meta));
-      } else {
-        console.error(this.formatMessage(_level, message, meta));
-      }
+      console.debug(this.formatter(_level, message, ...meta), ...meta);
     }
     return this;
   }
 
   public debug(message: string, ...meta: any[]): this {
-    this.log("debug", message, ...meta);
+    if (this.levelMap.debug >= this._level) {
+      console.debug(this.formatter("debug", message, ...meta), ...meta);
+    }
     return this;
   }
 
   public info(message: string, ...meta: any[]): this {
-    this.log("info", message, ...meta);
+    if (this.levelMap.info >= this._level) {
+      console.info(this.formatter("info", message, ...meta), ...meta);
+    }
     return this;
   }
 
   public notice(message: string, ...meta: any[]): this {
-    this.log("notice", message, ...meta);
+    if (this.levelMap.notice >= this._level) {
+      console.log(this.formatter("notice", message, ...meta), ...meta);
+    }
     return this;
   }
 
   public warning(message: string, ...meta: any[]): this {
-    this.log("warning", message, ...meta);
+    if (this.levelMap.warning >= this._level) {
+      console.warn(this.formatter("warning", message, ...meta), ...meta);
+    }
     return this;
   }
 
   public error(message: string, ...meta: any[]): this {
-    this.log("error", message, ...meta);
+    if (this.levelMap.error >= this._level) {
+      console.error(this.formatter("error", message, ...meta), ...meta);
+    }
     return this;
   }
 
   public alert(message: string, ...meta: any[]): this {
-    this.log("alert", message, ...meta);
+    if (this.levelMap.alert >= this._level) {
+      console.error(this.formatter("alert", message, ...meta), ...meta);
+    }
     return this;
   }
 
   public critical(message: string, ...meta: any[]): this {
-    this.log("critical", message, ...meta);
+    if (this.levelMap.critical >= this._level) {
+      console.error(this.formatter("critical", message, ...meta), ...meta);
+    }
     return this;
   }
 
   public emergency(message: string, ...meta: any[]): this {
-    this.log("emergency", message, ...meta);
+    if (this.levelMap.emergency >= this._level) {
+      console.error(this.formatter("emergency", message, ...meta), ...meta);
+    }
     return this;
-  }
-
-  protected formatMessage(level: string, message: string, meta: Array<any>) {
-    return this.format
-      .replace(/\$\{timestamp\}/g, new Date().toISOString())
-      .replace(/\$\{level\}/g, level)
-      .replace(/\$\{message\}/g, message)
-      .replace(/\$\{meta\}/g, JSON.stringify(meta));
   }
 
   private levelMap: { [l in SimpleLogLevels]: number } = {
@@ -110,13 +130,11 @@ export type Opts = {
   level: SimpleLogLevels;
 
   /**
-   * Should be a string template with variables in standard `${var}` format. Available variables
-   * include:
-   *
-   * * timestamp
-   * * level
-   * * message
-   * * meta
+   * A function that formats a log string for output
    */
+  formatter: (level: string, message: string, ...args: Array<any>) => string;
+};
+
+export type LegacyOpts = {
   format: string;
 };
