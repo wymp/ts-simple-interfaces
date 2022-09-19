@@ -1,15 +1,44 @@
 import { SimpleLoggerInterface, SimpleLogLevels as SLL } from "@wymp/ts-simple-interfaces";
 type SimpleLogLevels = keyof SLL;
 
+/**
+ * A Console interface for use in creating a mock console for testing
+ */
+export type Console = {
+  debug: (msg: string, ...args: Array<any>) => void;
+  info: (msg: string, ...args: Array<any>) => void;
+  log: (msg: string, ...args: Array<any>) => void;
+  warn: (msg: string, ...args: Array<any>) => void;
+  error: (msg: string, ...args: Array<any>) => void;
+};
+
+/**
+ * A simple logger based on the console. Routes messages to the most appropriate console log method.
+ * Accepts an options hash containing a level and an optional formatter.
+ *
+ * Formatter is a simple function that takes the level, message and any additional arguments and
+ * returns a string composed using that data. Defaults to the following:
+ *
+ * ```
+ * ${timestamp} [${level}] ${message}${meta}
+ * ```
+ */
 export class SimpleLoggerConsole implements SimpleLoggerInterface {
   protected _level: number = 20;
   protected formatter: Opts["formatter"];
-  protected legacyFormat: string = "[${level}] ${message}";
+  protected legacyFormat: string = "${timestamp} [${level}] ${message}${meta}";
+  protected console: Console;
 
-  public constructor(opts?: Partial<Opts & LegacyOpts>) {
+  public constructor(opts?: Partial<Opts & LegacyOpts>, _console?: Console) {
+    // Set the console (possibly a mock passed in)
+    this.console = _console || console;
+
+    // Set the level
     if (opts?.level) {
       this._level = this.levelMap[opts.level];
     }
+
+    // Set the formatter
     if (opts?.formatter) {
       this.formatter = opts.formatter;
     } else {
@@ -18,14 +47,14 @@ export class SimpleLoggerConsole implements SimpleLoggerInterface {
           .replace(/\$\{timestamp\}/g, new Date().toISOString())
           .replace(/\$\{level\}/g, level)
           .replace(/\$\{message\}/g, message)
-          .replace(/\$\{meta\}/g, JSON.stringify(args));
+          .replace(/\$\{meta\}/g, args.length > 0 ? ` ${JSON.stringify(args)}` : "");
       };
     }
 
     // If we passed the legacy option "format", set it and warn
     if (opts?.format) {
       this.legacyFormat = opts.format;
-      console.warn(
+      this.console.warn(
         `SimpleLoggerConsole: The logger option 'format' is deprecated. The new way is to ` +
           `pass a function under the \`formatter\` key whose signature is as follows: ` +
           `\`(level: string, message: string, ...args: Array<any>) => string;\`. ` +
@@ -50,63 +79,63 @@ export class SimpleLoggerConsole implements SimpleLoggerInterface {
   public log(_level: string, message: string, ...meta: any[]): this {
     const level = this.levelMap[<SimpleLogLevels>_level] || 10;
     if (level >= this._level) {
-      console.debug(this.formatter(_level, message, ...meta), ...meta);
+      this.console.log(this.formatter(_level, message, ...meta), ...meta);
     }
     return this;
   }
 
   public debug(message: string, ...meta: any[]): this {
     if (this.levelMap.debug >= this._level) {
-      console.debug(this.formatter("debug", message, ...meta), ...meta);
+      this.console.debug(this.formatter("debug", message, ...meta), ...meta);
     }
     return this;
   }
 
   public info(message: string, ...meta: any[]): this {
     if (this.levelMap.info >= this._level) {
-      console.info(this.formatter("info", message, ...meta), ...meta);
+      this.console.info(this.formatter("info", message, ...meta), ...meta);
     }
     return this;
   }
 
   public notice(message: string, ...meta: any[]): this {
     if (this.levelMap.notice >= this._level) {
-      console.log(this.formatter("notice", message, ...meta), ...meta);
+      this.console.log(this.formatter("notice", message, ...meta), ...meta);
     }
     return this;
   }
 
   public warning(message: string, ...meta: any[]): this {
     if (this.levelMap.warning >= this._level) {
-      console.warn(this.formatter("warning", message, ...meta), ...meta);
+      this.console.warn(this.formatter("warning", message, ...meta), ...meta);
     }
     return this;
   }
 
   public error(message: string, ...meta: any[]): this {
     if (this.levelMap.error >= this._level) {
-      console.error(this.formatter("error", message, ...meta), ...meta);
+      this.console.error(this.formatter("error", message, ...meta), ...meta);
     }
     return this;
   }
 
   public alert(message: string, ...meta: any[]): this {
     if (this.levelMap.alert >= this._level) {
-      console.error(this.formatter("alert", message, ...meta), ...meta);
+      this.console.error(this.formatter("alert", message, ...meta), ...meta);
     }
     return this;
   }
 
   public critical(message: string, ...meta: any[]): this {
     if (this.levelMap.critical >= this._level) {
-      console.error(this.formatter("critical", message, ...meta), ...meta);
+      this.console.error(this.formatter("critical", message, ...meta), ...meta);
     }
     return this;
   }
 
   public emergency(message: string, ...meta: any[]): this {
     if (this.levelMap.emergency >= this._level) {
-      console.error(this.formatter("emergency", message, ...meta), ...meta);
+      this.console.error(this.formatter("emergency", message, ...meta), ...meta);
     }
     return this;
   }
@@ -123,6 +152,9 @@ export class SimpleLoggerConsole implements SimpleLoggerInterface {
   };
 }
 
+/**
+ * New options hash
+ */
 export type Opts = {
   /**
    * The level at which to start displaying messages
@@ -135,6 +167,11 @@ export type Opts = {
   formatter: (level: string, message: string, ...args: Array<any>) => string;
 };
 
+/**
+ * Old options hash
+ *
+ * @deprecated
+ */
 export type LegacyOpts = {
   format: string;
 };
