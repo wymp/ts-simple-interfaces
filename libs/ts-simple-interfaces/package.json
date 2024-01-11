@@ -1,0 +1,46 @@
+{
+  "author": "Kael Shipman<kael.shipman@gmail.com>",
+  "bugs": "https://github.com/wymp/ts-simple-interfaces/issues",
+  "contributors": [
+    "https://github.com/kael-shipman/ts-simple-interfaces/graphs/contributors"
+  ],
+  "dependencies": {
+    "@wymp/http-errors": "^1.8.0 || ^2.0.0 || ^3.0.0"
+  },
+  "description": "This library attempts to define a set of simplified interfaces for typescript that are compatible with common tools in the ecosystem.",
+  "devDependencies": {
+    "@types/jest": "^29.5.11"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "homepage": "https://github.com/kael-shipman/ts-simple-interfaces",
+  "license": "MIT",
+  "main": "src/index.ts",
+  "name": "@wymp/ts-simple-interfaces",
+  "prettier": {
+    "printWidth": 120,
+    "trailingComma": "all"
+  },
+  "publishConfig": {
+    "access": "public",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts"
+  },
+  "repository": "https://github.com/wymp/ts-simple-interfaces",
+  "scripts": {
+    "build": "../../scripts/build.sh",
+    "check": "../../scripts/check.sh",
+    "clean": "../../scripts/clean.sh",
+    "docgen": "../../scripts/docgen.sh",
+    "format": "../../scripts/format.sh",
+    "lint": "../../scripts/lint.sh",
+    "lint:fix": "../../scripts/lint-fix.sh",
+    "prepublishOnly": "../../scripts/prepublishOnly.sh",
+    "prettier": "../../scripts/prettier.sh",
+    "prettier:fix": "../../scripts/prettier-fix.sh",
+    "typecheck": "../../scripts/typecheck.sh"
+  },
+  "version": "0.6.0"
+}

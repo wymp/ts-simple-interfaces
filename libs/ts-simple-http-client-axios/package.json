@@ -1,0 +1,44 @@
+{
+  "author": "Kael Shipman <kael.shipman@gmail.com>",
+  "bugs": "https://github.com/wymp/ts-simple-interfaces/issues",
+  "dependencies": {
+    "@wymp/ts-simple-interfaces": "workspace:^0.2.0 || ^0.3.0 || ^0.4.0 || ^0.5.0 || ^0.6.0",
+    "axios": ">= 0.19.0 && < 0.26.0"
+  },
+  "description": "A Simple™-conformant wrapper around Axios",
+  "devDependencies": {
+    "@types/jest": "^29.5.11"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "license": "ISC",
+  "main": "src/index.ts",
+  "name": "@wymp/simple-http-client-axios",
+  "prettier": {
+    "printWidth": 120,
+    "trailingComma": "all"
+  },
+  "publishConfig": {
+    "access": "public",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts"
+  },
+  "repository": "https://github.com/wymp/ts-simple-interfaces",
+  "scripts": {
+    "build": "../../scripts/build.sh",
+    "check": "../../scripts/check.sh",
+    "clean": "../../scripts/clean.sh",
+    "docgen": "../../scripts/docgen.sh",
+    "format": "../../scripts/format.sh",
+    "lint": "../../scripts/lint.sh",
+    "lint:fix": "../../scripts/lint-fix.sh",
+    "prepublishOnly": "../../scripts/prepublishOnly.sh",
+    "prettier": "../../scripts/prettier.sh",
+    "prettier:fix": "../../scripts/prettier-fix.sh",
+    "test": "jest tests/",
+    "typecheck": "../../scripts/typecheck.sh"
+  },
+  "version": "0.6.0"
+}
