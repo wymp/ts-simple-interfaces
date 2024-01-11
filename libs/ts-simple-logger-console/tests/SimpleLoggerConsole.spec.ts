@@ -1,4 +1,4 @@
-import { SimpleLoggerConsole, Console } from "../src/";
+import { SimpleLoggerConsole } from "../src/";
 import { SimpleLoggerInterface } from "@wymp/ts-simple-interfaces";
 
 describe("SimpleLoggerConsole", () => {

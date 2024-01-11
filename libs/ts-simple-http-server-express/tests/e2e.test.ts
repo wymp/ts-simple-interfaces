@@ -1,7 +1,6 @@
-import "jest";
 import { SimpleHttpServerExpress, Parsers } from "../src";
 import { MockSimpleLogger } from "@wymp/ts-simple-interfaces-testing";
-import { SimpleHttpClientRpn } from "simple-http-client-rpn";
+import { SimpleHttpClientRpn } from "@wymp/simple-http-client-rpn";
 
 describe("End-To-End Tests", () => {
   describe("SimpleHttpServerExpress", () => {
@@ -34,7 +33,7 @@ describe("End-To-End Tests", () => {
       });
 
       // Start the server
-      await new Promise((res, rej) => {
+      await new Promise<void>((res, rej) => {
         instances = srv.listen((listener) => res());
       });
 
@@ -91,7 +90,7 @@ describe("End-To-End Tests", () => {
       });
 
       // Start the server
-      await new Promise((res, rej) => {
+      await new Promise<void>((res, rej) => {
         instances = srv.listen((listener) => res());
       });
 
@@ -147,7 +146,7 @@ describe("End-To-End Tests", () => {
       });
 
       // Start the server
-      await new Promise((res, rej) => {
+      await new Promise<void>((res, rej) => {
         instances = srv.listen((listener) => res());
       });
 

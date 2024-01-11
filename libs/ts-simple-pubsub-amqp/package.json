@@ -23,14 +23,6 @@
       "pre-commit": "pretty-quick --staged"
     }
   },
-  "jest": {
-    "roots": [
-      "<rootDir>/tests"
-    ],
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    }
-  },
   "license": "ISC",
   "main": "src/index.ts",
   "name": "@wymp/simple-pubsub-amqp",

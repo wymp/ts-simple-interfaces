@@ -23,11 +23,6 @@
       "pre-commit": "pretty-quick --staged"
     }
   },
-  "jest": {
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    }
-  },
   "license": "ISC",
   "main": "src/index.ts",
   "name": "@wymp/simple-http-client-rpn",

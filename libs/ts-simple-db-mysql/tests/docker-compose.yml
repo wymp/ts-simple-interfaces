@@ -1,20 +1,27 @@
+name: simple-db-mysql-testing
 version: "3.9"
 
 ##
-# This setup is intended to be used for running this repo's automated tests. You should be able to
-# successfully run the tests by simply running `docker compose up` in this repo.
+# This setup is intended to be used for running this repo's automated tests. It is referenced from the `global-setup.js`
+# and `global-teardown.js` files, and there should be no need to use it manually (unless you want to).
 ##
 
 services:
-  simple-db-mysql-testing-mysql:
+  mysql:
     image: mysql:8
     ports:
       - 3306:3306
     volumes:
-      - simple-db-mysql-testing:/var/lib/mysql
+      - data:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: dev
       MYSQL_DATABASE: test
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u root --password=$$MYSQL_ROOT_PASSWORD
+      start_period: 2s
+      interval: 2s
+      timeout: 5s
+      retries: 10
 
 volumes:
-  simple-db-mysql-testing:
+  data:
