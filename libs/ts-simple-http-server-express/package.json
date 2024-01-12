@@ -40,11 +40,11 @@
     "format": "../../scripts/format.sh",
     "lint": "../../scripts/lint.sh",
     "lint:fix": "../../scripts/lint-fix.sh",
-    "prepublishOnly": "../../scripts/prepublishOnly.sh",
+    "prepack": "../../scripts/prepack.sh",
     "prettier": "../../scripts/prettier.sh",
     "prettier:fix": "../../scripts/prettier-fix.sh",
     "test": "jest tests/",
     "typecheck": "../../scripts/typecheck.sh"
   },
-  "version": "0.7.0"
+  "version": "0.7.1"
 }

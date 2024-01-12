@@ -5,11 +5,6 @@ Simple Interfaces for Typescript
 **NOTE:** This library is experimental right now and in active alpha development. While you may
 feel free to use it, it is expected to change considerably.
 
-**NOTE: As of v0.5.0 this project is now mantained by [Wymp](https://github.com/wymp) and the
-package is published on github. Please use `@wymp/ts-simple-interfaces` for future versions of
-this package. (This will require setting up an `.npmrc` file at some level with the following line:
-`@wymp:registry=https://npm.pkg.github.com/wymp`.)**
-
 ## TL;DR
 
 The "Simple" suite of packages should be considered a collection of interfaces (defined in this
