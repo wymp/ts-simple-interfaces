@@ -97,24 +97,25 @@ Following is a list of implementations by interface:
 
 ### `SimpleHttpClientInterface`
 
-* [`simple-http-client-rpn`](../ts-simple-http-client-rpn)
-* [`simple-http-client-axios`](../ts-simple-http-client-axios)
+* [`simple-http-client-rpn`](https://www.npmjs.com/package/@wymp/simple-http-client-rpn)
+* [`simple-http-client-axios`](https://www.npmjs.com/package/@wymp/simple-http-client-axios)
 
 ### `SimpleHttpRequestHandlerInterface`
 
-* [`simple-http-server-express`](../ts-simple-http-server-express)
+* [`simple-http-server-express`](https://www.npmjs.com/package/@wymp/simple-http-server-express)
 
 ### `SimpleLoggerInterface`
 
-* [`simple-logger-winston`](../ts-simple-logger-winston)
+* [`simple-logger-winston`](https://www.npmjs.com/package/@wymp/simple-logger-winston)
+* [`simple-logger-console`](https://www.npmjs.com/package/@wymp/simple-logger-console)
 
 ### `SimplePubSubInterface`
 
-* [`simple-pubsub-amqp`](../ts-simple-pubsub-amqp)
+* [`simple-pubsub-amqp`](https://www.npmjs.com/package/@wymp/simple-pubsub-amqp)
 
 ### `SimpleSqlDbInterface`
 
-* [`simple-db-mysql`](../ts-simple-db-mysql)
+* [`simple-db-mysql`](https://www.npmjs.com/package/@wymp/simple-db-mysql)
 
 
 ## Testing

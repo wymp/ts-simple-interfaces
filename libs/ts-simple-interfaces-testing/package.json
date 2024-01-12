@@ -42,5 +42,5 @@
     "prettier:fix": "../../scripts/prettier-fix.sh",
     "typecheck": "../../scripts/typecheck.sh"
   },
-  "version": "0.7.1"
+  "version": "0.7.2"
 }
