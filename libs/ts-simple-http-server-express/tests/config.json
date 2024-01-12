@@ -1,0 +1,8 @@
+{
+  "db": {
+    "user": "dev",
+    "password": "dev",
+    "database": "test",
+    "socketPath": "/var/run/mysqld/mysqld.sock"
+  }
+}
