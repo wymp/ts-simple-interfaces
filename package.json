@@ -41,5 +41,6 @@
       "@types/jest": "$@types/jest",
       "@types/node": "$@types/node"
     }
-  }
+  },
+  "version": "0.7.0"
 }
