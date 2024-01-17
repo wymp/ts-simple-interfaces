@@ -2,9 +2,8 @@
   "author": "Kael Shipman <kael.shipman@gmail.com>",
   "bugs": "https://github.com/wymp/ts-simple-interfaces/issues",
   "dependencies": {
-    "@types/mysql2": "types/mysql2#master",
     "@wymp/ts-simple-interfaces": "workspace:^0.4.1 || ^0.5.0 || ^0.6.0 || ^0.7.0",
-    "mysql2": "^2.1.0"
+    "mysql2": "^3.7.0"
   },
   "description": "A Simple™-conformant wrapper around mysql",
   "devDependencies": {
@@ -42,5 +41,5 @@
     "test": "jest tests/",
     "typecheck": "../../scripts/typecheck.sh"
   },
-  "version": "0.7.2"
+  "version": "0.7.3"
 }
