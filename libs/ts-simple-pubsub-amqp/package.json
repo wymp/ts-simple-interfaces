@@ -16,7 +16,8 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "src"
   ],
   "license": "ISC",
   "main": "src/index.ts",
@@ -45,5 +46,5 @@
     "test": "jest tests/",
     "typecheck": "../../scripts/typecheck.sh"
   },
-  "version": "0.7.3"
+  "version": "0.7.4"
 }

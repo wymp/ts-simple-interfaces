@@ -42,5 +42,5 @@
       "@types/node": "$@types/node"
     }
   },
-  "version": "0.7.3"
+  "version": "0.7.4"
 }

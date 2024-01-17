@@ -35,11 +35,34 @@ function exit_with_error() {
 }
 
 function process_set_args() {
-  SET_KEY="$1"
-  SET_VAL="$2"
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      -j|--json)
+        JSON="true"
+        shift
+      ;;
+
+      -m|--merge)
+        JSON="true"
+        OPERATOR="+="
+        shift
+      ;;
+
+      *)
+        if [ -z "$SET_KEY" ]; then
+          SET_KEY="$1"
+        elif [ -z "$SET_VAL" ]; then
+          SET_VAL="$1"
+        else
+          exit_with_error "Unknown argument: '$1'"
+        fi
+        shift
+      ;;
+    esac
+  done
+
   if [ -z "$SET_KEY" ]; then exit_with_error "No key specified"; fi
   if [ -z "$SET_VAL" ]; then exit_with_error "No value specified"; fi
-  if [ -n "$3" ]; then exit_with_error "Unknown argument: '$3'"; fi
 }
 
 function process_del_args() {
@@ -119,17 +142,6 @@ while [ $# -gt 0 ]; do
     -e|--exclude)
       EXCLUDE="$2"
       shift 2
-    ;;
-
-    -j|--json)
-      JSON="true"
-      shift
-    ;;
-
-    -m|--merge)
-      JSON="true"
-      OPERATOR="+="
-      shift
     ;;
 
     -d|--dry-run)
