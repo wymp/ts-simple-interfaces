@@ -13,7 +13,7 @@
     "docs:view": "./scripts/.internal/docs-view.sh",
     "format": "pnpm -r format && pnpm pkgjson sort",
     "pkgjson": "./scripts/.internal/pkgjson.sh",
-    "publish:all": "./scripts/.internal/publish-all.sh",
+    "publish:all": "pnpm -r publish",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
     "version:bump": "./scripts/.internal/version-bump.sh"
