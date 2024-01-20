@@ -5,7 +5,7 @@
     "https://github.com/kael-shipman/ts-simple-interfaces/graphs/contributors"
   ],
   "dependencies": {
-    "@wymp/http-errors": "^1.8.0 || ^2.0.0 || ^3.0.0"
+    "@wymp/http-errors": "^4.0.0"
   },
   "description": "This library attempts to define a set of simplified interfaces for typescript that are compatible with common tools in the ecosystem.",
   "devDependencies": {
@@ -20,10 +20,6 @@
   "license": "MIT",
   "main": "src/index.ts",
   "name": "@wymp/ts-simple-interfaces",
-  "prettier": {
-    "printWidth": 120,
-    "trailingComma": "all"
-  },
   "publishConfig": {
     "access": "public",
     "main": "dist/index.js",
@@ -34,7 +30,7 @@
     "build": "../../scripts/build.sh",
     "check": "../../scripts/check.sh",
     "clean": "../../scripts/clean.sh",
-    "docgen": "../../scripts/docgen.sh",
+    "docs:gen": "../../scripts/docs-gen.sh",
     "format": "../../scripts/format.sh",
     "lint": "../../scripts/lint.sh",
     "lint:fix": "../../scripts/lint-fix.sh",
@@ -43,5 +39,5 @@
     "prettier:fix": "../../scripts/prettier-fix.sh",
     "typecheck": "../../scripts/typecheck.sh"
   },
-  "version": "0.7.4"
+  "version": "0.8.0"
 }

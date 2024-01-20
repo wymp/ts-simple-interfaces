@@ -1,5 +1,5 @@
 /* eslint-disable */
-const { v2: compose } = require("docker-compose");
+const { v2: compose } = require('docker-compose');
 
 module.exports = async () => {
   process.stdout.write(`\nStopping docker stack... `);

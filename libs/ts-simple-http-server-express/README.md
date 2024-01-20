@@ -1,4 +1,5 @@
-# Simple HTTP Server, Express
+Simple HTTP Server, Express
+==================================================================================================================
 
 _A Simple™-conformant wrapper around ExpressJS. "Simple" is intended to be a highly reduced interface that allows for
 better interoperability and dependency choice for consumers._
@@ -7,7 +8,7 @@ better interoperability and dependency choice for consumers._
 is expected to change considerably.
 
 This package provides a light wrapper around ExpressJS that enforces conformity with the `SimpleHttpServerInterface`
-defined in [`ts-simple-interfaces`](https://github.com/wymp/ts-simple-interfaces/tree/current/packages/ts-simple-interfaces).
+defined in [`ts-simple-interfaces`](https://npmjs.com/packages/@wymp/ts-simple-interfaces).
 
 See that package for information about the interface.
 

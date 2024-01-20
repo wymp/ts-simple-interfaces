@@ -1,5 +1,5 @@
-import * as mysql from "mysql2";
-import { SimpleSqlDbInterface, SimpleSqlResponseInterface, SqlValue } from "@wymp/ts-simple-interfaces";
+import * as mysql from 'mysql2';
+import { SimpleSqlDbInterface, SimpleSqlResponseInterface, SqlValue } from '@wymp/ts-simple-interfaces';
 
 /**
  * mysql2 types don't export PromisePool type, so we have to replicate what we need here
@@ -54,7 +54,7 @@ export class SimpleDbMysql implements SimpleSqlDbInterface {
         return await doit();
       } catch (e) {
         // Throw if it's not a deadlock error or we've already tried ${lim} times
-        if (e.code !== "ER_LOCK_DEADLOCK" || i === lim) {
+        if (e.code !== 'ER_LOCK_DEADLOCK' || i === lim) {
           throw e;
         }
       }
@@ -71,17 +71,17 @@ export class SimpleDbMysql implements SimpleSqlDbInterface {
     txName?: string | null | unknown,
   ): Promise<T> {
     const cnx = await this.pool.getConnection();
-    await cnx.query("START TRANSACTION");
+    await cnx.query('START TRANSACTION');
     try {
       const res = await queries(<SimpleSqlDbInterface>{
         query: (q, params) => this._query(q, params, cnx),
         transaction: (q, txName) => this.transaction(q, txName),
         close: () => this.close(),
       });
-      await cnx.query("COMMIT");
+      await cnx.query('COMMIT');
       return res;
     } catch (e) {
-      await cnx.query("ROLLBACK");
+      await cnx.query('ROLLBACK');
       throw e;
     } finally {
       cnx.release();
@@ -95,5 +95,5 @@ export class SimpleDbMysql implements SimpleSqlDbInterface {
 }
 
 function isOkPacket(v: any): v is mysql.OkPacket {
-  return Object.prototype.hasOwnProperty.call(v, "affectedRows");
+  return Object.prototype.hasOwnProperty.call(v, 'affectedRows');
 }

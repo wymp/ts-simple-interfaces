@@ -2,7 +2,7 @@
   "author": "Kael Shipman <kael.shipman@gmail.com>",
   "bugs": "https://github.com/wymp/ts-simple-interfaces/issues",
   "dependencies": {
-    "@wymp/ts-simple-interfaces": "workspace:^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^0.5.0 || ^0.6.0 || ^0.7.0"
+    "@wymp/ts-simple-interfaces": "workspace:^0.1.0 || ^0.2.0 || ^0.3.0 || ^0.4.0 || ^0.5.0 || ^0.6.0 || ^0.7.0 || ^0.8.0"
   },
   "description": "A Simple™-conformant wrapper around console.log",
   "devDependencies": {
@@ -16,10 +16,6 @@
   "license": "ISC",
   "main": "src/index.ts",
   "name": "@wymp/simple-logger-console",
-  "prettier": {
-    "printWidth": 120,
-    "trailingComma": "all"
-  },
   "publishConfig": {
     "access": "public",
     "main": "dist/index.js",
@@ -30,15 +26,15 @@
     "build": "../../scripts/build.sh",
     "check": "../../scripts/check.sh",
     "clean": "../../scripts/clean.sh",
-    "docgen": "../../scripts/docgen.sh",
+    "docs:gen": "../../scripts/docs-gen.sh",
     "format": "../../scripts/format.sh",
     "lint": "../../scripts/lint.sh",
     "lint:fix": "../../scripts/lint-fix.sh",
     "prepack": "../../scripts/prepack.sh",
     "prettier": "../../scripts/prettier.sh",
     "prettier:fix": "../../scripts/prettier-fix.sh",
-    "test": "jest tests/",
+    "test": "../../scripts/test.sh",
     "typecheck": "../../scripts/typecheck.sh"
   },
-  "version": "0.7.4"
+  "version": "0.8.0"
 }

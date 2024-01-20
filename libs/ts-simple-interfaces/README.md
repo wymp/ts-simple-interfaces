@@ -2,24 +2,22 @@ Simple Interfaces for Typescript
 ===============================================================================
 
 
-**NOTE:** This library is experimental right now and in active alpha development. While you may
-feel free to use it, it is expected to change considerably.
+**NOTE:** This library is experimental right now and in active alpha development. While you may feel free to use it, it
+is expected to change considerably.
 
 ## TL;DR
 
-The "Simple" suite of packages should be considered a collection of interfaces (defined in this
-package) along with a collection of concrete implementations (defined in other packages prefaced
-with `simple-`) that allow you to write code that is highly portable and highly testable.
+The "Simple" suite of packages should be considered a collection of interfaces (defined in this package) along with a
+collection of concrete implementations (defined in other packages prefaced with `simple-`) that allow you to write code
+that is highly portable and highly testable.
 
-The idea is that your code should always use the _simple interfaces,_ for function argument types,
-and that you should then pass in the concrete implementations that you wish to
-use.
+The idea is that your code should always use the _simple interfaces,_ for function argument types, and that you should
+then pass in the concrete implementations that you wish to use.
 
-For example, your application may require an HTTP client, like Axios or Request Promise Native.
-To set your application up, you would type the variable holding the client as
-`SimpleHttpClientInterface` and then set it to a concrete implementation, such as
-`SimpleHttpClientAxios` from the
-[`simple-http-client-axios` package](../ts-simple-http-client-axios):
+For example, your application may require an HTTP client, like Axios or Request Promise Native.  To set your application
+up, you would type the variable holding the client as `SimpleHttpClientInterface` and then set it to a concrete
+implementation, such as `SimpleHttpClientFetch` from the
+[`@wymp/simple-http-client-fetch` package](https://npmjs.com/package/@wymp/simple-http-client-fetch):
 
 ```ts
 // src/MyClient.ts
@@ -49,56 +47,52 @@ const data = myClient.getSomeData();
 // ....
 ```
 
-Doing this means that if for any reason in the future it Axios goes out of production or becomes
-problematic, you can easily switch to a different implementation with minimal adjustments.
+Doing this means that if for any reason in the future it Axios goes out of production or becomes problematic, you can
+easily switch to a different implementation with minimal adjustments.
 
-Note that the idea is not necessarily that there be _no_ adjustments. Individual implementations
-have varying features that you may want to use. However, sticking to Simple-conformant
-implementations not only minimizes the adjustments you have to make when migrating, but it also
-increases your options for testing, as other people can focus on building robust, widely
-applicable test implementations that conform to the general Simple interfaces and can be dropped in
-with no modifications, or at least only minor ones.
+Note that the idea is not necessarily that there be _no_ adjustments. Individual implementations have varying features
+that you may want to use. However, sticking to Simple-conformant implementations not only minimizes the adjustments you
+have to make when migrating, but it also increases your options for testing, as other people can focus on building
+robust, widely applicable test implementations that conform to the general Simple interfaces and can be dropped in with
+no modifications, or at least only minor ones.
 
 ## Longer Overview
 
-This library attempts to define a set of simplified interfaces for typescript that are compatible
-with common tools in the ecosystem. Most of these tools are I/O-based, such as pub/subs (amqp),
-relational databases (mysql, postgres), key-value stores (redis), and loggers (winston), but
-technically any complex tool is fair game for a simplified interface.
+This library attempts to define a set of simplified interfaces for typescript that are compatible with common tools in
+the ecosystem. Most of these tools are I/O-based, such as pub/subs (amqp), relational databases (mysql, postgres),
+key-value stores (redis), and loggers (winston), but technically any complex tool is fair game for a simplified
+interface.
 
-The problem is that many of these tools have unnecessarily complex native interfaces that make
-them problematic for testing and portability. For example, Winston is a wonderful logger, but
-its `LoggerInterface` defines a bunch of methods that are not very useful to the average user,
-and furthermore extends `NodeJSStream.Transport`, yielding a final interface that defines over
-40 methods that have little to do with logging messages. Thus, incorporating these interfaces
-into your code unnecessarily expands the contracts that your code uses, making your applications
-less flexible, more difficult to test, and more difficult to migrate to new technologies.
+The problem is that many of these tools have unnecessarily complex native interfaces that make them problematic for
+testing and portability. For example, Winston is a wonderful logger, but its `LoggerInterface` defines a bunch of
+methods that are not very useful to the average user, and furthermore extends `NodeJSStream.Transport`, yielding a
+final interface that defines over 40 methods that have little to do with logging messages. Thus, incorporating these
+interfaces into your code unnecessarily expands the contracts that your code uses, making your applications less
+flexible, more difficult to test, and more difficult to migrate to new technologies.
 
-Another issue is that Winston's `LoggerInterface` is defined in the library itself, meaning that
-if you want to use that `LoggerInterface`, you have to depend on the whole Winston package. This
-isn't technically a huge deal, but it also tends to hamper the responsible specification of
-general interfaces that are independent of any single project.
+Another issue is that Winston's `LoggerInterface` is defined in the library itself, meaning that if you want to use that
+`LoggerInterface`, you have to depend on the whole Winston package. This isn't technically a huge deal, but it also
+tends to hamper the responsible specification of general interfaces that are independent of any single project.
 
 
 ## TOC for Simple Suite of Packages
 
-As mentioned in the TL;DR, the "simple" concept is actually a collection of repositories/packages.
-For each interface defined, the goal is to create one or more "official" concrete implementations
-based on current popular libraries.
+As mentioned in the TL;DR, the "simple" concept is actually a collection of repositories/packages. For each interface
+defined, the goal is to create one or more "official" concrete implementations based on current popular libraries.
 
 >
-> Because the Simple suite is still very much a work in progress, very few concrete implementations
-> have been defined. However, as the interfaces stabilize and are used in production environments,
-> the hope is to deliver more. Feel free to let me know about any concrete implementations that
-> spring up in the wild....
+> Because the Simple suite is still very much a work in progress, very few concrete implementations have been defined.
+> However, as the interfaces stabilize and are used in production environments, the hope is to deliver more. Feel free
+> to let me know about any concrete implementations that spring up in the wild....
 >
 
 Following is a list of implementations by interface:
 
 ### `SimpleHttpClientInterface`
 
-* [`simple-http-client-rpn`](https://www.npmjs.com/package/@wymp/simple-http-client-rpn)
+* [`simple-http-client-fetch`](https://www.npmjs.com/package/@wymp/simple-http-client-fetch)
 * [`simple-http-client-axios`](https://www.npmjs.com/package/@wymp/simple-http-client-axios)
+* [`simple-http-client-rpn`](https://www.npmjs.com/package/@wymp/simple-http-client-rpn)
 
 ### `SimpleHttpRequestHandlerInterface`
 
@@ -106,8 +100,8 @@ Following is a list of implementations by interface:
 
 ### `SimpleLoggerInterface`
 
-* [`simple-logger-winston`](https://www.npmjs.com/package/@wymp/simple-logger-winston)
 * [`simple-logger-console`](https://www.npmjs.com/package/@wymp/simple-logger-console)
+* [`simple-logger-winston`](https://www.npmjs.com/package/@wymp/simple-logger-winston)
 
 ### `SimplePubSubInterface`
 
@@ -120,18 +114,18 @@ Following is a list of implementations by interface:
 
 ## Testing
 
-One of the advantages of referencing these interfaces in your code is that you can use potentially
-powerful pre-built testing mocks/spies/stubs that conform to them. At the time of this writing,
-these are being developed [here](../ts-simple-interfaces-testing).
+One of the advantages of referencing these interfaces in your code is that you can use potentially powerful pre-built
+testing mocks/spies/stubs that conform to them. At the time of this writing, these are being developed
+[here](../ts-simple-interfaces-testing).
 
-For example, you can instantiate a `SimpleMockSqlDb` that implements `SimpleSqlDbInterface` and
-gives you the ability to easily analyze query requests and define responses.
+For example, you can instantiate a `SimpleMockSqlDb` that implements `SimpleSqlDbInterface` and gives you the ability to
+easily analyze query requests and define responses.
 
 
 ## Usage
 
-To use this library, just list it as a dependency[1] and then define classes that implement
-these interfaces. For example:
+To use this library, just list it as a dependency[^1] and then define classes that implement these interfaces. For
+example:
 
 ```ts
 // src/MyDatasource.ts
@@ -145,13 +139,13 @@ export class MyDatasource implements SimpleDatasourceInterface {
 
 ## API
 
-The best way to understand the API is by just looking at the declarations file
-[here](https://github.com/wymp/ts-simple-interfaces/blob/current/packages/ts-simple-interfaces/src/index.ts).
+The best way to understand the API is by just looking at the definitions
+[here](https://github.com/wymp/ts-simple-interfaces/tree/current/libs/ts-simple-interfaces/src/).
 
 
 ## Footnotes
 
-[1] Note that this library should be included as a proper dependency, not a dev dependency,
-because it may define enums that actually compile down to javascript that your project uses
+[1]: Note that the `@wymp/ts-simple-interfaces` library should be included as a proper dependency, not a dev dependency,
+because it may define enums and certain utility classes that actually compile down to javascript that your project uses
 at runtime.
 

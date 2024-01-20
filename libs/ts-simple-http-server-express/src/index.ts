@@ -1,6 +1,6 @@
-import * as bp from "body-parser";
-import * as express from "express";
-import { Server } from "http";
+import * as bp from 'body-parser';
+import * as express from 'express';
+import { Server } from 'http';
 import {
   SimpleHttpRequestHandlerInterface,
   SimpleHttpServerMiddleware,
@@ -9,7 +9,7 @@ import {
   SimpleHttpServerNextFunction,
   SimpleHttpServerErrorHandler,
   SimpleLoggerInterface,
-} from "@wymp/ts-simple-interfaces";
+} from '@wymp/ts-simple-interfaces';
 
 /**
  * Body-Parser exports for convenience

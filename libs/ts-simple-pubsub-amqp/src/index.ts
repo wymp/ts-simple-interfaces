@@ -1,2 +1,2 @@
-export * from "./SimpleAmqp";
-export * from "./Mocks";
+export * from './SimpleAmqp';
+export * from './Mocks';

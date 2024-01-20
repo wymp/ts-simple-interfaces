@@ -1,13 +1,13 @@
-import * as amqp from "amqplib";
-import * as AmqpProps from "amqplib/properties";
-import * as uuid from "uuid";
+import * as amqp from 'amqplib';
+import * as AmqpProps from 'amqplib/properties';
+import * as uuid from 'uuid';
 import {
   SimplePubSubInterface,
   SimplePubSubMessageInterface,
   SimpleLoggerInterface,
   TaggedLogger,
-} from "@wymp/ts-simple-interfaces";
-import { EventEmitter } from "events";
+} from '@wymp/ts-simple-interfaces';
+import { EventEmitter } from 'events';
 
 /**
  *
@@ -103,8 +103,8 @@ export interface SimpleAmqpConfig extends amqp.Options.Connect {}
 export interface SimpleAmqpConnection {
   close(): Promise<void>;
   createChannel(): Promise<SimpleAmqpChannel>;
-  on(ev: "error", handler: (e: Error) => void | unknown): unknown;
-  on(ev: "close", handler: (e?: Error) => void | unknown): unknown;
+  on(ev: 'error', handler: (e: Error) => void | unknown): unknown;
+  on(ev: 'close', handler: (e?: Error) => void | unknown): unknown;
 }
 
 export interface SimpleAmqpChannel {
@@ -124,9 +124,9 @@ export interface SimpleAmqpChannel {
   ack(message: AmqpProps.Message, allUpTo?: boolean): void;
   nack(message: AmqpProps.Message, allUpTo?: boolean, requeue?: boolean): void;
   publish(exchange: string, routingKey: string, content: Buffer, options?: AmqpProps.Options.Publish): boolean;
-  once(ev: "drain", handler: () => unknown): unknown;
-  on(ev: "error", handler: (e: Error) => void | unknown): unknown;
-  on(ev: "close", handler: (e?: Error) => void | unknown): unknown;
+  once(ev: 'drain', handler: () => unknown): unknown;
+  on(ev: 'error', handler: (e: Error) => void | unknown): unknown;
+  on(ev: 'close', handler: (e?: Error) => void | unknown): unknown;
 }
 
 /**
@@ -194,46 +194,46 @@ export class SimplePubSubAmqp
   public async connect(): Promise<this> {
     // Establish the connection and failover
     this.cnx = await this.amqpConnect(this.config);
-    this.cnx.on("error", (e: Error) => {
-      this.emitter.emit("error", e);
+    this.cnx.on('error', (e: Error) => {
+      this.emitter.emit('error', e);
       this.tryAgain(e);
     });
 
     // Establish the channel failover
     this.ch = await this.cnx.createChannel();
-    this.ch.on("error", (e: Error) => {
-      this.emitter.emit("error", e);
+    this.ch.on('error', (e: Error) => {
+      this.emitter.emit('error', e);
       this.tryAgain(e);
     });
-    this.ch.on("close", (e?: Error) => this.emitter.emit("disconnect", e));
+    this.ch.on('close', (e?: Error) => this.emitter.emit('disconnect', e));
 
-    this.emitter.emit("connect");
+    this.emitter.emit('connect');
     this._waiting = false;
     return this;
   }
 
-  public on(event: "error", listener: (e: Error) => void): this;
-  public on(event: "connect", listener: () => void): this;
-  public on(event: "disconnect", listener: () => void): this;
-  public on(event: "connect" | "disconnect" | "error", listener: ((e: Error) => void) | (() => void)): this {
+  public on(event: 'error', listener: (e: Error) => void): this;
+  public on(event: 'connect', listener: () => void): this;
+  public on(event: 'disconnect', listener: () => void): this;
+  public on(event: 'connect' | 'disconnect' | 'error', listener: ((e: Error) => void) | (() => void)): this {
     this.emitter.on(event, listener);
     return this;
   }
 
-  public once(event: "error", listener: (e: Error) => void): this;
-  public once(event: "connect", listener: () => void): this;
-  public once(event: "disconnect", listener: () => void): this;
-  public once(event: "connect" | "disconnect" | "error", listener: ((e: Error) => void) | (() => void)): this {
+  public once(event: 'error', listener: (e: Error) => void): this;
+  public once(event: 'connect', listener: () => void): this;
+  public once(event: 'disconnect', listener: () => void): this;
+  public once(event: 'connect' | 'disconnect' | 'error', listener: ((e: Error) => void) | (() => void)): this {
     this.emitter.once(event, listener);
     return this;
   }
 
-  public removeListener(event: "connect" | "disconnect" | "error", listener: () => void): this {
+  public removeListener(event: 'connect' | 'disconnect' | 'error', listener: () => void): this {
     this.emitter.removeListener(event, listener);
     return this;
   }
 
-  public removeAllListeners(event?: "connect" | "disconnect" | "error"): this {
+  public removeAllListeners(event?: 'connect' | 'disconnect' | 'error'): this {
     this.emitter.removeAllListeners(event);
     return this;
   }
@@ -247,9 +247,9 @@ export class SimplePubSubAmqp
   }
 
   public subscribe(
-    routes: Subscription["routes"],
-    handler: Subscription["handler"],
-    options: Subscription["options"],
+    routes: Subscription['routes'],
+    handler: Subscription['handler'],
+    options: Subscription['options'],
   ): Promise<void> {
     return new Promise((res, rej) => {
       const sub = { routes, handler, options };
@@ -272,7 +272,7 @@ export class SimplePubSubAmqp
     this.log.info(`Asserting that queue ${qopts.name} exists.`);
     await this.ch!.assertQueue(qopts.name, {
       exclusive: qopts.exclusive,
-      durable: typeof qopts.durable === "undefined" ? true : qopts.durable,
+      durable: typeof qopts.durable === 'undefined' ? true : qopts.durable,
       autoDelete: qopts.autoDelete,
     });
 
@@ -282,8 +282,8 @@ export class SimplePubSubAmqp
       this.log.info(`Asserting that exchange ${exchange} exists.`);
       const exopts = sub.options.exchanges && sub.options.exchanges[exchange] ? sub.options.exchanges[exchange] : {};
       p.push(
-        this.ch!.assertExchange(exchange, exopts.type || "topic", {
-          durable: typeof exopts.durable === "undefined" ? true : exopts.durable,
+        this.ch!.assertExchange(exchange, exopts.type || 'topic', {
+          durable: typeof exopts.durable === 'undefined' ? true : exopts.durable,
           internal: exopts.internal,
           autoDelete: exopts.autoDelete,
           alternateExchange: exopts.alternateExchange,
@@ -325,7 +325,7 @@ export class SimplePubSubAmqp
 
       const log = new TaggedLogger(`MQ: ${qopts.name}:${m.extra.messageId ? ` ${m.extra.messageId}:` : ``}`, this.log);
 
-      log.debug(`Received message: ${m.content.toString("utf8")}`);
+      log.debug(`Received message: ${m.content.toString('utf8')}`);
       const result = await this.backoff.run(() => sub.handler(m, log), log);
 
       if (result) {
@@ -340,7 +340,7 @@ export class SimplePubSubAmqp
     // Fill in default options
     options.timestamp = options.timestamp || Date.now();
     options.messageId = options.messageId || uuid.v4();
-    options.persistent = typeof options.persistent === "undefined" ? true : options.persistent;
+    options.persistent = typeof options.persistent === 'undefined' ? true : options.persistent;
 
     // Now try to publish
     return new Promise<void>((res, rej) => {
@@ -365,7 +365,7 @@ export class SimplePubSubAmqp
             const success = this.ch!.publish(
               channel,
               options.routingKey,
-              Buffer.isBuffer(msg) ? msg : Buffer.from(typeof msg === "string" ? msg : JSON.stringify(msg), "utf8"),
+              Buffer.isBuffer(msg) ? msg : Buffer.from(typeof msg === 'string' ? msg : JSON.stringify(msg), 'utf8'),
               options,
             );
 
@@ -373,7 +373,7 @@ export class SimplePubSubAmqp
               res();
             } else {
               // If we return false, then the buffer is full. Try again after the 'drain' event
-              this.ch!.once("drain", () => publish());
+              this.ch!.once('drain', () => publish());
             }
           } catch (e) {
             // If we caught an error, then call "tryAgain" to re-estabslish the connection and then try the publish again
@@ -411,7 +411,7 @@ export class SimplePubSubAmqp
     if (this.reloads > 5) {
       this.log.error(
         `MQ Connection or Channel reloaded too many times (${this.reloads}). ` +
-          `Reason given: ${e && e.message ? e.message : "(none)"}. ` +
+          `Reason given: ${e && e.message ? e.message : '(none)'}. ` +
           `Slowing down retries.`,
       );
       setTimeout(async () => {
@@ -480,28 +480,28 @@ export abstract class AbstractPubSubAmqp {
     return this.driver.connect().then(() => this);
   }
 
-  public on(event: "error", listener: (e: Error) => void): this;
-  public on(event: "connect", listener: () => void): this;
-  public on(event: "disconnect", listener: () => void): this;
-  public on(event: "connect" | "disconnect" | "error", listener: ((e: Error) => void) | (() => void)): this {
+  public on(event: 'error', listener: (e: Error) => void): this;
+  public on(event: 'connect', listener: () => void): this;
+  public on(event: 'disconnect', listener: () => void): this;
+  public on(event: 'connect' | 'disconnect' | 'error', listener: ((e: Error) => void) | (() => void)): this {
     this.driver.on(<any>event, listener);
     return this;
   }
 
-  public once(event: "error", listener: (e: Error) => void): this;
-  public once(event: "connect", listener: () => void): this;
-  public once(event: "disconnect", listener: () => void): this;
-  public once(event: "connect" | "disconnect" | "error", listener: ((e: Error) => void) | (() => void)): this {
+  public once(event: 'error', listener: (e: Error) => void): this;
+  public once(event: 'connect', listener: () => void): this;
+  public once(event: 'disconnect', listener: () => void): this;
+  public once(event: 'connect' | 'disconnect' | 'error', listener: ((e: Error) => void) | (() => void)): this {
     this.driver.once(<any>event, listener);
     return this;
   }
 
-  public removeListener(event: "connect" | "disconnect" | "error", listener: () => void): this {
+  public removeListener(event: 'connect' | 'disconnect' | 'error', listener: () => void): this {
     this.driver.removeListener(event, listener);
     return this;
   }
 
-  public removeAllListeners(event?: "connect" | "disconnect" | "error"): this {
+  public removeAllListeners(event?: 'connect' | 'disconnect' | 'error'): this {
     this.driver.removeAllListeners(event);
     return this;
   }

@@ -2,7 +2,7 @@ import {
   SimpleHttpClientInterface,
   SimpleHttpClientRequestConfig,
   SimpleHttpClientResponseInterface,
-} from "@wymp/ts-simple-interfaces";
+} from '@wymp/ts-simple-interfaces';
 
 export class MockSimpleHttpClient implements SimpleHttpClientInterface {
   protected responses: {
@@ -22,12 +22,12 @@ export class MockSimpleHttpClient implements SimpleHttpClientInterface {
   public async request<T = any>(config: SimpleHttpClientRequestConfig): Promise<SimpleHttpClientResponseInterface<T>> {
     // Copy config object and add method, if necessary
     config = Object.assign({}, config);
-    if (typeof config.method === "undefined") {
-      config.method = "GET";
+    if (typeof config.method === 'undefined') {
+      config.method = 'GET';
     }
 
     // Derive key
-    const key = `${config.method || ""} ${config.baseURL || ""}${config.url || ""}`;
+    const key = `${config.method || ''} ${config.baseURL || ''}${config.url || ''}`;
 
     // Throw if no response set
     if (!Object.prototype.hasOwnProperty.call(this.responses, key) || this.responses[key].length === 0) {
@@ -43,7 +43,7 @@ export class MockSimpleHttpClient implements SimpleHttpClientInterface {
 
     // Otherwise, throw or return according to set response
     const res = this.responses[key].shift()!;
-    if (typeof (res as NodeJS.ErrnoException).stack !== "undefined") {
+    if (typeof (res as NodeJS.ErrnoException).stack !== 'undefined') {
       throw <NodeJS.ErrnoException>res;
     } else {
       return <SimpleHttpClientResponseInterface<T>>res;

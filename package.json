@@ -9,8 +9,8 @@
     "build": "pnpm -r build",
     "check": "pnpm -r check",
     "clean": "pnpm -r clean",
-    "docgen": "pnpm -r docgen",
-    "docs:view": "./scripts/docs-view.sh",
+    "docs:gen": "pnpm -r docs:gen",
+    "docs:view": "./scripts/.internal/docs-view.sh",
     "format": "pnpm -r format && pnpm pkgjson sort",
     "pkgjson": "./scripts/.internal/pkgjson.sh",
     "publish:all": "./scripts/.internal/publish-all.sh",
@@ -42,5 +42,5 @@
       "@types/node": "$@types/node"
     }
   },
-  "version": "0.7.4"
+  "version": "0.8.0"
 }

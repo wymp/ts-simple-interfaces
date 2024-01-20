@@ -6,6 +6,6 @@ allows for better interoperability and dependency choice for consumers._
 
 This package provides a light wrapper around mysql2 that enforces conformity
 with the `SimpleSqlDbInterface` defined in
-[`ts-simple-interfaces`](https://github.com/wymp/ts-simple-interfaces/tree/current/packages/ts-simple-interfaces).
+[`ts-simple-interfaces`](https://npmjs.com/packages/@wymp/ts-simple-interfaces).
 See that package for information about the interface.
 

@@ -1,5 +1,5 @@
 name: simple-db-mysql-testing
-version: "3.9"
+version: '3.9'
 
 ##
 # This setup is intended to be used for running this repo's automated tests. It is referenced from the `global-setup.js`

@@ -4,7 +4,7 @@
   "dependencies": {
     "@types/amqplib": ">=0.5.13",
     "@types/uuid": "^9.0.7",
-    "@wymp/ts-simple-interfaces": "workspace:^0.5.5 || ^0.6.0 || ^0.7.0",
+    "@wymp/ts-simple-interfaces": "workspace:^0.5.5 || ^0.6.0 || ^0.7.0 || ^0.8.0",
     "amqplib": "^0.5.5 || ^0.6.0 || ^0.7.1 || ^0.8.0 || ^0.9.0 || ^0.10.0",
     "uuid": "^9.0.1"
   },
@@ -12,7 +12,7 @@
   "devDependencies": {
     "@types/jest": "^29.5.11",
     "@types/node": "^20.10.8",
-    "@wymp/ts-simple-interfaces-testing": "workspace:^0.4.0 || ^0.5.0 || ^0.6.0 || ^0.7.0"
+    "@wymp/ts-simple-interfaces-testing": "workspace:>=0.4.0"
   },
   "files": [
     "dist",
@@ -22,10 +22,6 @@
   "license": "ISC",
   "main": "src/index.ts",
   "name": "@wymp/simple-pubsub-amqp",
-  "prettier": {
-    "printWidth": 120,
-    "trailingComma": "all"
-  },
   "publishConfig": {
     "access": "public",
     "main": "dist/index.js",
@@ -36,15 +32,15 @@
     "build": "../../scripts/build.sh",
     "check": "../../scripts/check.sh",
     "clean": "../../scripts/clean.sh",
-    "docgen": "../../scripts/docgen.sh",
+    "docs:gen": "../../scripts/docs-gen.sh",
     "format": "../../scripts/format.sh",
     "lint": "../../scripts/lint.sh",
     "lint:fix": "../../scripts/lint-fix.sh",
     "prepack": "../../scripts/prepack.sh",
     "prettier": "../../scripts/prettier.sh",
     "prettier:fix": "../../scripts/prettier-fix.sh",
-    "test": "jest tests/",
+    "test": "../../scripts/test.sh",
     "typecheck": "../../scripts/typecheck.sh"
   },
-  "version": "0.7.4"
+  "version": "0.8.0"
 }

@@ -1,5 +1,5 @@
-import { SimpleLoggerInterface } from "@wymp/ts-simple-interfaces";
-import * as winston from "winston";
+import { SimpleLoggerInterface } from '@wymp/ts-simple-interfaces';
+import * as winston from 'winston';
 
 export class SimpleLoggerWinston implements SimpleLoggerInterface {
   protected winston: winston.Logger;

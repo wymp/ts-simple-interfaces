@@ -1,4 +1,4 @@
-import { SimpleLoggerInterface } from "@wymp/ts-simple-interfaces";
+import { SimpleLoggerInterface } from '@wymp/ts-simple-interfaces';
 
 declare type Opts = {
   outputMessages?: boolean;
@@ -38,41 +38,41 @@ export class MockSimpleLogger implements SimpleLoggerInterface {
   }
 
   public emergency(message: string, ...meta: any[]): this {
-    return this.log("emergency", message, meta);
+    return this.log('emergency', message, meta);
   }
 
   public critical(message: string, ...meta: any[]): this {
-    return this.log("critical", message, meta);
+    return this.log('critical', message, meta);
   }
 
   public alert(message: string, ...meta: any[]): this {
-    return this.log("alert", message, meta);
+    return this.log('alert', message, meta);
   }
 
   public error(message: string, ...meta: any[]): this {
-    return this.log("error", message, meta);
+    return this.log('error', message, meta);
   }
 
   public warning(message: string, ...meta: any[]): this {
-    return this.log("warning", message, meta);
+    return this.log('warning', message, meta);
   }
 
   public notice(message: string, ...meta: any[]): this {
-    return this.log("notice", message, meta);
+    return this.log('notice', message, meta);
   }
 
   public info(message: string, ...meta: any[]): this {
-    return this.log("info", message, meta);
+    return this.log('info', message, meta);
   }
 
   public debug(message: string, ...meta: any[]): this {
-    return this.log("debug", message, meta);
+    return this.log('debug', message, meta);
   }
 
   public log(level: string, message: string, ...meta: any[]): this {
     this._loggedMessages.push(`${level}: ${message}`);
     if (this.opts.outputMessages) {
-      console.log(`${level}: ${message}` + (meta.length > 0 ? JSON.stringify(meta) : ""));
+      console.log(`${level}: ${message}` + (meta.length > 0 ? JSON.stringify(meta) : ''));
     }
     return this;
   }

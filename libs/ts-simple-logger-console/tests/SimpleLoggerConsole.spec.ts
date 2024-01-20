@@ -1,7 +1,7 @@
-import { SimpleLoggerConsole } from "../src/";
-import { SimpleLoggerInterface } from "@wymp/ts-simple-interfaces";
+import { SimpleLoggerConsole } from '../src/';
+import { SimpleLoggerInterface } from '@wymp/ts-simple-interfaces';
 
-describe("SimpleLoggerConsole", () => {
+describe('SimpleLoggerConsole', () => {
   let _console: any;
   let log: SimpleLoggerInterface;
 
@@ -16,27 +16,27 @@ describe("SimpleLoggerConsole", () => {
     };
 
     // Reset logger
-    log = new SimpleLoggerConsole({ level: "debug" }, _console);
+    log = new SimpleLoggerConsole({ level: 'debug' }, _console);
   });
 
-  const ts = "[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]+Z";
+  const ts = '[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]+Z';
 
-  for (const level of ["debug", "info", "notice", "warning", "error", "critical", "alert", "emergency"] as Array<
+  for (const level of ['debug', 'info', 'notice', 'warning', 'error', 'critical', 'alert', 'emergency'] as Array<
     keyof SimpleLoggerInterface
   >) {
     it(`should successfully log ${level} messages`, () => {
       (log[level] as any)(`Testing ${level} messages`);
 
       const expectedLevel =
-        level === "debug"
-          ? "debug"
-          : level === "info"
-            ? "info"
-            : level === "notice"
-              ? "log"
-              : level === "warning"
-                ? "warn"
-                : "error";
+        level === 'debug'
+          ? 'debug'
+          : level === 'info'
+            ? 'info'
+            : level === 'notice'
+              ? 'log'
+              : level === 'warning'
+                ? 'warn'
+                : 'error';
 
       expect(_console[expectedLevel].mock.calls).toHaveLength(1);
       expect(_console[expectedLevel].mock.calls[0][0]).toMatch(

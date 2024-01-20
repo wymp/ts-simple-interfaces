@@ -1,7 +1,6 @@
-import "jest";
-import { SimpleHttpClientRpn } from "../src";
-import { SimpleHttpClientResponseInterface } from "@wymp/ts-simple-interfaces";
-import { MockSimpleLogger } from "@wymp/ts-simple-interfaces-testing";
+import { isHttpError } from '@wymp/ts-simple-interfaces/src/errors';
+import { SimpleHttpClientRpn } from '../src';
+import { MockSimpleLogger } from '@wymp/ts-simple-interfaces-testing';
 
 const log = new MockSimpleLogger();
 
@@ -19,61 +18,98 @@ declare interface Post {
   body: string;
 }
 
-test("Can get API response", async () => {
-  const client = new SimpleHttpClientRpn();
-  const r: SimpleHttpClientResponseInterface = await client.request<Todo>(
-    {
-      url: "https://jsonplaceholder.typicode.com/todos/1",
-    },
-    log,
-  );
+describe(`SimpleHttpClientRequestRpn`, () => {
+  describe('request', () => {
+    test('Can get API response', async () => {
+      const client = new SimpleHttpClientRpn();
+      const r = await client.request<Todo>(
+        {
+          url: 'https://jsonplaceholder.typicode.com/todos/1',
+        },
+        log,
+      );
 
-  expect(r.status).toBe(200);
-  expect(typeof r.data).toBe("object");
-  expect(typeof r.data.id).toBe("number");
-  expect(typeof r.data.userId).toBe("number");
-  expect(typeof r.data.completed).toBe("boolean");
-  expect(typeof r.data.title).toBe("string");
-});
+      expect(r.status).toBe(200);
+      expect(typeof r.data).toBe('object');
+      expect(typeof r.data.id).toBe('number');
+      expect(typeof r.data.userId).toBe('number');
+      expect(typeof r.data.completed).toBe('boolean');
+      expect(typeof r.data.title).toBe('string');
+    });
 
-test("Can POST to an API", async () => {
-  const client = new SimpleHttpClientRpn();
-  const r: SimpleHttpClientResponseInterface = await client.request<Post>(
-    {
-      method: "POST",
-      url: "https://jsonplaceholder.typicode.com/posts",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      data: {
-        userId: 1,
-        title: "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-        body:
-          "quia et suscipit\nsuscipit recusandae consequuntur expedita et " +
-          "cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet " +
-          "architecto",
-      },
-    },
-    log,
-  );
+    test('Can POST to an API', async () => {
+      const client = new SimpleHttpClientRpn();
+      const r = await client.request<Post>(
+        {
+          method: 'POST',
+          url: 'https://jsonplaceholder.typicode.com/posts',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          data: {
+            userId: 1,
+            title: 'sunt aut facere repellat provident occaecati excepturi optio reprehenderit',
+            body:
+              'quia et suscipit\nsuscipit recusandae consequuntur expedita et ' +
+              'cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet ' +
+              'architecto',
+          },
+        },
+        log,
+      );
 
-  expect(r.status).toBe(201);
-  expect(typeof r.data).toBe("object");
-  expect(typeof r.data.id).toBe("number");
-  expect(typeof r.data.userId).toBe("number");
-  expect(typeof r.data.title).toBe("string");
-  expect(typeof r.data.body).toBe("string");
-});
+      expect(r.status).toBe(201);
+      expect(typeof r.data).toBe('object');
+      expect(typeof r.data.id).toBe('number');
+      expect(typeof r.data.userId).toBe('number');
+      expect(typeof r.data.title).toBe('string');
+      expect(typeof r.data.body).toBe('string');
+    });
 
-describe(`requestAndThrow`, () => {
-  test(`returns data on success`, async () => {
-    const client = new SimpleHttpClientRpn();
-    const data = await client.requestAndThrow<Todo>({ url: "https://jsonplaceholder.typicode.com/todos/1" }, log);
-    expect(typeof data.id).toBe("number");
-    expect(typeof data.userId).toBe("number");
-    expect(typeof data.completed).toBe("boolean");
-    expect(typeof data.title).toBe("string");
+    test('Throws a SimpleHttpClientRequestError on error response by default', async () => {
+      expect.assertions(4);
+      const client = new SimpleHttpClientRpn();
+      return client
+        .request<Todo>(
+          {
+            url: 'https://jsonplaceholder.typicode.com/todos/0',
+          },
+          log,
+        )
+        .catch((e) => {
+          expect(isHttpError(e)).toBe(true);
+          expect(e.message).toMatch(/404/);
+          expect(typeof e.res).not.toBeUndefined();
+          expect(e.res?.status).toBe(404);
+        });
+    });
+
+    test('Returns error response when requested not to throw', async () => {
+      const client = new SimpleHttpClientRpn();
+      const res = await client.request<Todo>(
+        {
+          url: 'https://jsonplaceholder.typicode.com/todos/0',
+          throwErrors: false,
+        },
+        log,
+      );
+      expect(res.status).toBe(404);
+      // We would like for this to actually be undefined, since the response body is empty, but not sure how to get axios
+      // to do that and don't care enough right now.
+      expect(JSON.stringify(res.data)).toBe('{}');
+    });
   });
 
-  test.todo(`throws error on error`);
+  describe(`requestAndThrow`, () => {
+    test(`returns data on success`, async () => {
+      const client = new SimpleHttpClientRpn();
+      const data = await client.requestAndThrow<Todo>({ url: 'https://jsonplaceholder.typicode.com/todos/1' }, log);
+      expect(typeof data.id).toBe('number');
+      expect(typeof data.userId).toBe('number');
+      expect(typeof data.completed).toBe('boolean');
+      expect(typeof data.title).toBe('string');
+    });
+
+    test.todo(`throws error on error`);
+  });
 });

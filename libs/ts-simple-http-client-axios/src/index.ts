@@ -2,8 +2,14 @@ import {
   SimpleHttpClientRequestConfig,
   SimpleHttpClientResponseInterface,
   SimpleHttpClientInterface,
-} from "@wymp/ts-simple-interfaces";
-import axios, { AxiosRequestConfig, AxiosResponse, AxiosInstance } from "axios";
+  SimpleLoggerInterface,
+} from '@wymp/ts-simple-interfaces';
+import {
+  HttpErrorStatuses,
+  HttpStatusCodes,
+  SimpleHttpClientRequestError,
+} from '@wymp/ts-simple-interfaces/src/errors';
+import axios, { AxiosRequestConfig, AxiosInstance } from 'axios';
 
 export class SimpleHttpClientAxios implements SimpleHttpClientInterface {
   protected axios: AxiosInstance;
@@ -16,13 +22,14 @@ export class SimpleHttpClientAxios implements SimpleHttpClientInterface {
     }
   }
 
-  request<T>(
-    _config: Omit<AxiosRequestConfig, "headers"> & SimpleHttpClientRequestConfig,
+  public async request<T>(
+    _config: Omit<AxiosRequestConfig, 'headers'> & SimpleHttpClientRequestConfig,
+    log?: SimpleLoggerInterface,
   ): Promise<SimpleHttpClientResponseInterface<T>> {
     const headers = Object.entries(_config.headers || {})
       .filter((row): row is [string, string | Array<string>] => row[1] !== undefined)
       .reduce<{ [k: string]: string }>((obj, entry) => {
-        obj[entry[0]] = Array.isArray(entry[1]) ? entry[1].join(",") : entry[1];
+        obj[entry[0]] = Array.isArray(entry[1]) ? entry[1].join(',') : entry[1];
         return obj;
       }, {});
 
@@ -32,13 +39,32 @@ export class SimpleHttpClientAxios implements SimpleHttpClientInterface {
       validateStatus: _config.throwErrors === false ? () => true : null,
     };
 
-    return this.axios.request<T>(config).then((r: AxiosResponse<T>): SimpleHttpClientResponseInterface<T> => {
-      return {
-        data: r.data,
-        status: r.status,
-        headers: r.headers,
-        config,
-      };
-    });
+    const raw = await this.axios.request<T>(config);
+    const res: SimpleHttpClientResponseInterface<T> = {
+      data: raw.data,
+      status: raw.status,
+      headers: raw.headers,
+      config,
+    };
+
+    if (res.status >= 400 && config.throwErrors !== false) {
+      // TODO: Figure out cleaner way to type error responses
+      const errorBody: any = res.data;
+      const errorData = errorBody
+        ? errorBody.tag === 'HttpError'
+          ? errorBody
+          : errorBody.error?.tag === 'HttpError'
+            ? errorBody.error
+            : null
+        : null;
+      if (errorData) {
+        throw SimpleHttpClientRequestError.fromJSON(errorData, res);
+      } else {
+        const status = <HttpStatusCodes>res.status;
+        throw new SimpleHttpClientRequestError(status, `${status} ${HttpErrorStatuses[status]}`, { res });
+      }
+    }
+
+    return res;
   }
 }

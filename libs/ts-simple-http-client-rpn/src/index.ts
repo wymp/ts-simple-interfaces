@@ -3,9 +3,14 @@ import {
   SimpleHttpClientResponseInterface,
   SimpleHttpClientInterface,
   SimpleLoggerInterface,
-} from "@wymp/ts-simple-interfaces";
-import * as rpn from "request-promise-native";
-import * as req from "request";
+} from '@wymp/ts-simple-interfaces';
+import * as rpn from 'request-promise-native';
+import * as req from 'request';
+import {
+  HttpErrorStatuses,
+  HttpStatusCodes,
+  SimpleHttpClientRequestError,
+} from '@wymp/ts-simple-interfaces/src/errors';
 
 export interface SimpleRpnRequestConfig extends SimpleHttpClientRequestConfig {
   transform?: (body: any, response: req.Response, resolveWithFullResponse?: boolean) => any;
@@ -27,14 +32,14 @@ export class SimpleHttpClientRpn implements SimpleHttpClientInterface {
   }
 
   // TODO: Implement special data handling for rpn-specific options
-  public request<T>(
+  public async request<T>(
     config: SimpleRpnRequestConfig,
     log?: SimpleLoggerInterface,
   ): Promise<SimpleHttpClientResponseInterface<T>> {
     config.url = config.url!;
     const rpnConfig: rpn.OptionsWithUrl = {
       baseUrl: config.baseURL,
-      url: config.url || "/",
+      url: config.url || '/',
       method: config.method,
       headers: config.headers,
       transform: config.transform,
@@ -43,18 +48,19 @@ export class SimpleHttpClientRpn implements SimpleHttpClientInterface {
       body: config.data,
       maxRedirects: config.maxRedirects,
       removeRefererHeader: config.removeRefererHeader,
-      timeout: config.timeout,
+      timeout: config.timeoutMs,
       rejectUnauthorized: config.rejectUnauthorized,
       followAllRedirects: true,
       resolveWithFullResponse: true,
       qs: config.params || null,
-      simple: config.throwErrors || false,
+      // We're handling errors ourselves, so setting simple to false
+      simple: false,
     };
 
     // Set json property if necessary
     if (
       rpnConfig.body &&
-      typeof rpnConfig.body !== "string" &&
+      typeof rpnConfig.body !== 'string' &&
       !(rpnConfig.body instanceof Buffer) &&
       rpnConfig.json !== true &&
       rpnConfig.json !== false
@@ -62,41 +68,60 @@ export class SimpleHttpClientRpn implements SimpleHttpClientInterface {
       rpnConfig.json = true;
     }
 
-    return this.rpn(rpnConfig).then((r: rpn.FullResponse): SimpleHttpClientResponseInterface<T> => {
-      let data: T | null = null;
-      if (r.headers) {
-        const contentType = Object.entries(r.headers).find((v) => v[0].toLowerCase() === "content-type");
-        if (
-          contentType &&
-          (contentType[1] as string).match(/^application\/.*json.*$/) &&
-          typeof r.body === "string" &&
-          r.body.length > 0
-        ) {
-          if (log) {
-            log.debug("SimpleHttpClientRPN: Parsing body from string");
-          }
-          data = <T>JSON.parse(r.body);
-        }
-      }
-
-      if (data === null) {
+    const raw = await this.rpn(rpnConfig);
+    let data: T | null = null;
+    if (raw.headers) {
+      const contentType = Object.entries(raw.headers).find((v) => v[0].toLowerCase() === 'content-type');
+      if (
+        contentType &&
+        (contentType[1] as string).match(/^application\/.*json.*$/) &&
+        typeof raw.body === 'string' &&
+        raw.body.length > 0
+      ) {
         if (log) {
-          log.debug("SimpleHttpClientRPN: Using raw body from response.");
+          log.debug('SimpleHttpClientRPN: Parsing body from string');
         }
-        data = r.body;
+        data = <T>JSON.parse(raw.body);
       }
+    }
 
-      return {
-        status: r.statusCode,
-        data: data!,
-        headers: r.headers,
-        config,
-      };
-    });
+    if (data === null) {
+      if (log) {
+        log.debug('SimpleHttpClientRPN: Using raw body from response.');
+      }
+      data = raw.body;
+    }
+
+    const res: SimpleHttpClientResponseInterface<T> = {
+      status: raw.statusCode,
+      data: data!,
+      headers: raw.headers,
+      config,
+    };
+
+    if (res.status >= 400 && config.throwErrors !== false) {
+      // TODO: Figure out cleaner way to type error responses
+      const errorBody: any = data;
+      const errorData = errorBody
+        ? errorBody.tag === 'HttpError'
+          ? errorBody
+          : errorBody.error?.tag === 'HttpError'
+            ? errorBody.error
+            : null
+        : null;
+      if (errorData) {
+        throw SimpleHttpClientRequestError.fromJSON(errorData, res);
+      } else {
+        const status = <HttpStatusCodes>res.status;
+        throw new SimpleHttpClientRequestError(status, `${status} ${HttpErrorStatuses[status]}`, { res });
+      }
+    }
+
+    return res;
   }
 
   public async requestAndThrow<T = unknown, E = unknown>(
-    config: Omit<SimpleRpnRequestConfig, "throwErrors">,
+    config: Omit<SimpleRpnRequestConfig, 'throwErrors'>,
     log?: SimpleLoggerInterface,
   ): Promise<T> {
     // Watch out! We're using `any` here because there's no reliable way to separate error responses

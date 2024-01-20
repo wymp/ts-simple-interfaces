@@ -1,5 +1,5 @@
-import { SimpleSqlDbInterface, SimpleSqlResponseInterface, SqlValue } from "@wymp/ts-simple-interfaces";
-import { Md5 } from "ts-md5";
+import { SimpleSqlDbInterface, SimpleSqlResponseInterface, SqlValue } from '@wymp/ts-simple-interfaces';
+import { Md5 } from 'ts-md5';
 
 interface MockDbConfig {
   throwOnClose: boolean;
@@ -10,7 +10,7 @@ export const md5 = function (str: string) {
 };
 
 const isResponse = function <T>(val: any): val is SimpleSqlResponseInterface<T> {
-  return typeof val.rows !== "undefined";
+  return typeof val.rows !== 'undefined';
 };
 
 export class MockSimpleSqlDb implements SimpleSqlDbInterface {
@@ -23,7 +23,7 @@ export class MockSimpleSqlDb implements SimpleSqlDbInterface {
   } = {};
 
   public constructor(config?: Partial<MockDbConfig>) {
-    if (typeof config !== "undefined") {
+    if (typeof config !== 'undefined') {
       this.config = Object.assign({}, this.config, config);
     }
   }
@@ -32,7 +32,7 @@ export class MockSimpleSqlDb implements SimpleSqlDbInterface {
    * If an exception is passed, it is thrown when the query is called. Otherwise, the given response is returned
    */
   public setQueryResult(hashOrQuery: string, result: SimpleSqlResponseInterface<any> | NodeJS.ErrnoException) {
-    if (typeof this.queryMockResultQueue[hashOrQuery] === "undefined") {
+    if (typeof this.queryMockResultQueue[hashOrQuery] === 'undefined') {
       this.queryMockResultQueue[hashOrQuery] = [];
     }
     this.queryMockResultQueue[hashOrQuery].push(result);
@@ -46,9 +46,9 @@ export class MockSimpleSqlDb implements SimpleSqlDbInterface {
     }
 
     const hash = md5(query);
-    const queueKey = typeof this.queryMockResultQueue[hash] !== "undefined" ? hash : query;
+    const queueKey = typeof this.queryMockResultQueue[hash] !== 'undefined' ? hash : query;
     if (
-      typeof this.queryMockResultQueue[queueKey] === "undefined" ||
+      typeof this.queryMockResultQueue[queueKey] === 'undefined' ||
       this.queryMockResultQueue[queueKey].length === 0
     ) {
       const msg =
@@ -56,7 +56,7 @@ export class MockSimpleSqlDb implements SimpleSqlDbInterface {
         hash +
         "') as the first argument of that function, then an array containing result objects as the second method.\n\nQuery:\n\n" +
         query +
-        "\n\nwith params:\n\n" +
+        '\n\nwith params:\n\n' +
         JSON.stringify(params, null, 2);
 
       // Because of complexities of async functions and throwing errors, there is NO WAY TO CATCH AND DISPLAY THIS ERROR.

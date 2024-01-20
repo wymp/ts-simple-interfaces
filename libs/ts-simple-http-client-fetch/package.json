@@ -1,0 +1,42 @@
+{
+  "author": "Kael Shipman <kael.shipman@gmail.com>",
+  "bugs": "https://github.com/wymp/ts-simple-interfaces/issues",
+  "dependencies": {
+    "@wymp/ts-simple-interfaces": "workspace:^0.8.0"
+  },
+  "description": "A Simple™-conformant wrapper around request-promise-native",
+  "devDependencies": {
+    "@types/jest": "^29.5.11",
+    "@types/node": "^20.10.8",
+    "@wymp/ts-simple-interfaces-testing": "workspace:>=0.2.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "src"
+  ],
+  "license": "ISC",
+  "main": "src/index.ts",
+  "name": "@wymp/simple-http-client-fetch",
+  "publishConfig": {
+    "access": "public",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts"
+  },
+  "repository": "https://github.com/wymp/ts-simple-interfaces",
+  "scripts": {
+    "build": "../../scripts/build.sh",
+    "check": "../../scripts/check.sh",
+    "clean": "../../scripts/clean.sh",
+    "docs:gen": "../../scripts/docs-gen.sh",
+    "format": "../../scripts/format.sh",
+    "lint": "../../scripts/lint.sh",
+    "lint:fix": "../../scripts/lint-fix.sh",
+    "prepack": "../../scripts/prepack.sh",
+    "prettier": "../../scripts/prettier.sh",
+    "prettier:fix": "../../scripts/prettier-fix.sh",
+    "test": "../../scripts/test.sh",
+    "typecheck": "../../scripts/typecheck.sh"
+  },
+  "version": "0.8.0"
+}

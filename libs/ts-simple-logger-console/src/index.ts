@@ -1,4 +1,4 @@
-import { SimpleLoggerInterface, SimpleLogLevels as SLL } from "@wymp/ts-simple-interfaces";
+import { SimpleLoggerInterface, SimpleLogLevels as SLL } from '@wymp/ts-simple-interfaces';
 type SimpleLogLevels = keyof SLL;
 
 /**
@@ -25,8 +25,8 @@ export type Console = {
  */
 export class SimpleLoggerConsole implements SimpleLoggerInterface {
   protected _level: number = 20;
-  protected formatter: Opts["formatter"];
-  protected legacyFormat: string = "${timestamp} [${level}] ${message}${meta}";
+  protected formatter: Opts['formatter'];
+  protected legacyFormat: string = '${timestamp} [${level}] ${message}${meta}';
   protected console: Console;
 
   public constructor(opts?: Partial<Opts & LegacyOpts>, _console?: Console) {
@@ -47,7 +47,7 @@ export class SimpleLoggerConsole implements SimpleLoggerInterface {
           .replace(/\$\{timestamp\}/g, new Date().toISOString())
           .replace(/\$\{level\}/g, level)
           .replace(/\$\{message\}/g, message)
-          .replace(/\$\{meta\}/g, args.length > 0 ? ` ${JSON.stringify(args)}` : "");
+          .replace(/\$\{meta\}/g, args.length > 0 ? ` ${JSON.stringify(args)}` : '');
       };
     }
 
@@ -70,7 +70,7 @@ export class SimpleLoggerConsole implements SimpleLoggerInterface {
         return l;
       }
     }
-    return "debug";
+    return 'debug';
   }
   public set level(l: SimpleLogLevels) {
     this._level = this.levelMap[l];
@@ -86,56 +86,56 @@ export class SimpleLoggerConsole implements SimpleLoggerInterface {
 
   public debug(message: string, ...meta: any[]): this {
     if (this.levelMap.debug >= this._level) {
-      this.console.debug(this.formatter("debug", message, ...meta), ...meta);
+      this.console.debug(this.formatter('debug', message, ...meta), ...meta);
     }
     return this;
   }
 
   public info(message: string, ...meta: any[]): this {
     if (this.levelMap.info >= this._level) {
-      this.console.info(this.formatter("info", message, ...meta), ...meta);
+      this.console.info(this.formatter('info', message, ...meta), ...meta);
     }
     return this;
   }
 
   public notice(message: string, ...meta: any[]): this {
     if (this.levelMap.notice >= this._level) {
-      this.console.log(this.formatter("notice", message, ...meta), ...meta);
+      this.console.log(this.formatter('notice', message, ...meta), ...meta);
     }
     return this;
   }
 
   public warning(message: string, ...meta: any[]): this {
     if (this.levelMap.warning >= this._level) {
-      this.console.warn(this.formatter("warning", message, ...meta), ...meta);
+      this.console.warn(this.formatter('warning', message, ...meta), ...meta);
     }
     return this;
   }
 
   public error(message: string, ...meta: any[]): this {
     if (this.levelMap.error >= this._level) {
-      this.console.error(this.formatter("error", message, ...meta), ...meta);
+      this.console.error(this.formatter('error', message, ...meta), ...meta);
     }
     return this;
   }
 
   public alert(message: string, ...meta: any[]): this {
     if (this.levelMap.alert >= this._level) {
-      this.console.error(this.formatter("alert", message, ...meta), ...meta);
+      this.console.error(this.formatter('alert', message, ...meta), ...meta);
     }
     return this;
   }
 
   public critical(message: string, ...meta: any[]): this {
     if (this.levelMap.critical >= this._level) {
-      this.console.error(this.formatter("critical", message, ...meta), ...meta);
+      this.console.error(this.formatter('critical', message, ...meta), ...meta);
     }
     return this;
   }
 
   public emergency(message: string, ...meta: any[]): this {
     if (this.levelMap.emergency >= this._level) {
-      this.console.error(this.formatter("emergency", message, ...meta), ...meta);
+      this.console.error(this.formatter('emergency', message, ...meta), ...meta);
     }
     return this;
   }
