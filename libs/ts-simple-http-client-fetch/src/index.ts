@@ -24,11 +24,11 @@ export interface SimpleFetchRequestConfig extends SimpleHttpClientRequestConfig 
    * Policy specifying whether to include credentials. See
    * https://developer.mozilla.org/en-US/docs/Web/API/Request/Request#credentials
    */
-  credentials?: "include" | "omit" | "same-origin";
+  credentials?: 'include' | 'omit' | 'same-origin';
   /**
    * See https://developer.mozilla.org/en-US/docs/Web/API/Request/Request#mode
    */
-  mode?: "cors" | "navigate" | "no-cors" | "same-origin";
+  mode?: 'cors' | 'navigate' | 'no-cors' | 'same-origin';
 }
 
 /**
