@@ -4,7 +4,7 @@
   "dependencies": {
     "@types/request": "^2.48.12",
     "@types/request-promise-native": "^1.0.16",
-    "@wymp/ts-simple-interfaces": "workspace:^0.8.0",
+    "@wymp/ts-simple-interfaces": "workspace:^0.8.0 || ^0.9.0",
     "request": "^2.88.2",
     "request-promise-native": "^1.0.9"
   },
@@ -42,5 +42,5 @@
     "test": "../../scripts/test.sh",
     "typecheck": "../../scripts/typecheck.sh"
   },
-  "version": "0.8.1"
+  "version": "0.9.0"
 }

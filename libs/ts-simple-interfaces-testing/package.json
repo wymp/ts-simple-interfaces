@@ -3,7 +3,7 @@
   "bugs": "https://github.com/wymp/ts-simple-interfaces/issues",
   "contributors": "https://github.com/kael-shipman/ts-simple-interfaces/graphs/contributors",
   "dependencies": {
-    "@wymp/ts-simple-interfaces": "workspace:^0.4.0 || ^0.5.0 || ^0.6.0 || ^0.7.0 || ^0.8.0",
+    "@wymp/ts-simple-interfaces": "workspace:^0.4.0 || ^0.5.0 || ^0.6.0 || ^0.7.0 || ^0.8.0 || ^0.9.0",
     "ts-md5": "^1.2.4"
   },
   "description": "This library supplies testing utilities like stubs, spies and fixtures, for testing applications that utilize SimpleInterface implementations.",
@@ -39,5 +39,5 @@
     "prettier:fix": "../../scripts/prettier-fix.sh",
     "typecheck": "../../scripts/typecheck.sh"
   },
-  "version": "0.8.1"
+  "version": "0.9.0"
 }

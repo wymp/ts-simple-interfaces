@@ -9,36 +9,38 @@ import {
 } from '@wymp/ts-simple-interfaces';
 import { EventEmitter } from 'events';
 
-/**
- *
- *
- *
- *
- * AMQP-Specific Types
- *
- *
- *
- *
- */
+//
+//
+//
+//
+// AMQP-Specific Types
+//
+//
+//
+//
 
-export interface SimpleAmqpMessage extends SimplePubSubMessageInterface {
+/** RabbitMQ-specific "extra" properties */
+export type AmqpExtra = {
+  exchange: string;
+  routingKey: string;
+  redelivered: boolean;
+  appId?: string;
+  type?: string;
+  timestamp: number;
+  messageId: string;
+  headers?: { [k: string]: string | number };
+  contentEncoding?: string;
+  contentType?: string;
+  expiration?: number;
+};
+
+/** The actual type of a RabbitMQ message */
+export type AmqpMessage = SimplePubSubMessageInterface<AmqpExtra> & {
   content: Buffer;
-  extra: {
-    exchange: string;
-    routingKey: string;
-    redelivered: boolean;
-    appId?: string;
-    type?: string;
-    timestamp: number;
-    messageId: string;
-    headers?: { [k: string]: string | number };
-    contentEncoding?: string;
-    contentType?: string;
-    expiration?: number;
-  };
-}
+};
 
-export interface SubscriptionOptions {
+/** Subscription options */
+export interface SimpleSubscriptionOptions {
   queue: {
     name: string;
     exclusive?: boolean;
@@ -56,7 +58,7 @@ export interface SubscriptionOptions {
   };
 }
 
-export interface PublishOptions {
+export interface SimplePublishOptions {
   routingKey: string;
   appId?: string;
   type?: string;
@@ -69,37 +71,37 @@ export interface PublishOptions {
   persistent?: boolean;
 }
 
-export interface Backoff {
-  run(job: () => Promise<boolean>, log: SimpleLoggerInterface): Promise<boolean>;
+/** An interface defining a retry controller for running jobs with retries on failure */
+export interface Retry {
+  run(job: () => Promise<boolean>, log: SimpleLoggerInterface, jobId?: string): Promise<boolean>;
 }
 
-/**
- * Private (internal) types
- */
+//
+// Private (internal) types
+//
+
 declare type RoutingKey = string;
 declare type Subscription = {
   routes: { [exchange: string]: Array<RoutingKey> };
-  handler: (msg: SimpleAmqpMessage, log: SimpleLoggerInterface) => Promise<boolean>;
-  options: SubscriptionOptions;
+  handler: (msg: AmqpMessage, log: SimpleLoggerInterface) => Promise<boolean>;
+  options: SimpleSubscriptionOptions;
 };
 declare type SubscriptionQueue = Array<Subscription>;
 
-/**
- *
- *
- *
- *
- *
- * Some AMQP definitions for purposes of improving testability
- *
- *
- *
- *
- *
- */
+//
+//
+//
+//
+// Some AMQP definitions for purposes of improving testability
+//
+//
+//
+//
 
+/** Configuration options for the SimplePubsubAmqp class */
 export interface SimpleAmqpConfig extends amqp.Options.Connect {}
 
+/** A simple AMQP connection */
 export interface SimpleAmqpConnection {
   close(): Promise<void>;
   createChannel(): Promise<SimpleAmqpChannel>;
@@ -107,6 +109,7 @@ export interface SimpleAmqpConnection {
   on(ev: 'close', handler: (e?: Error) => void | unknown): unknown;
 }
 
+/** A simple AMQP channel */
 export interface SimpleAmqpChannel {
   close(): Promise<void>;
   assertExchange(
@@ -129,27 +132,35 @@ export interface SimpleAmqpChannel {
   on(ev: 'close', handler: (e?: Error) => void | unknown): unknown;
 }
 
+//
+//
+//
+//
+//
+//
+// Main PubSub class
+//
+//
+//
+//
+//
+//
+
 /**
+ * The standard Simple PubSub implementation for AMQP.
  *
- *
- *
- *
- *
- * Main PubSub class
- *
- *
- *
- *
- *
+ * Because amqplib has such awful error handling properties, this class implements complex logic for managing the
+ * connection. It will attempt to re-establish the both the channel and the connection in the case of errors in either,
+ * and will queue subscription requests until the connection is established and restore subscriptions on reconnect.
  */
-export class SimplePubSubAmqp
-  implements SimplePubSubInterface<SimpleAmqpMessage, unknown, SubscriptionOptions, PublishOptions>
+export class SimplePubSubAmqp<PubMsgType = unknown>
+  implements SimplePubSubInterface<AmqpMessage, PubMsgType, SimpleSubscriptionOptions, SimplePublishOptions>
 {
   protected cnx: SimpleAmqpConnection | null = null;
   protected ch: SimpleAmqpChannel | null = null;
   protected subscriptions: SubscriptionQueue = [];
   protected _waiting: boolean = true;
-  protected backoff: Backoff;
+  protected retry: Retry;
   protected emitter: EventEmitter;
   protected closed: boolean = false;
   private amqpConnect: (url: string | AmqpProps.Options.Connect, socketOptions?: any) => Promise<SimpleAmqpConnection>;
@@ -160,16 +171,18 @@ export class SimplePubSubAmqp
     protected config: SimpleAmqpConfig,
     protected log: SimpleLoggerInterface,
     deps?: {
-      backoff?: Backoff;
+      retry?: Retry;
       amqpConnect?: (url: string | AmqpProps.Options.Connect, socketOptions?: any) => Promise<SimpleAmqpConnection>;
     },
   ) {
-    // If we don't pass in a backoff mechanism, then wait 1 second before nacking failures
-    this.backoff =
-      deps && deps.backoff
-        ? deps.backoff
+    // If we don't pass in a retry mechanism, then wait 1 second before nacking failures (nacking will send it back
+    // to the queue, which will then re-deliver it to us if configured to do so, so a waiting 1 second on failure is
+    // like having a 1-second periodic retry mechanism)
+    this.retry =
+      deps && deps.retry
+        ? deps.retry
         : {
-            run: (j: () => Promise<boolean>, l: SimpleLoggerInterface): Promise<boolean> => {
+            run: (j: () => Promise<boolean>, l: SimpleLoggerInterface, _jobId: string): Promise<boolean> => {
               return new Promise((r) => {
                 j().then((result) => {
                   if (!result) {
@@ -326,7 +339,7 @@ export class SimplePubSubAmqp
       const log = new TaggedLogger(`MQ: ${qopts.name}:${m.extra.messageId ? ` ${m.extra.messageId}:` : ``}`, this.log);
 
       log.debug(`Received message: ${m.content.toString('utf8')}`);
-      const result = await this.backoff.run(() => sub.handler(m, log), log);
+      const result = await this.retry.run(() => sub.handler(m, log), log, m.extra.messageId);
 
       if (result) {
         this.ch!.ack(msg);
@@ -336,7 +349,7 @@ export class SimplePubSubAmqp
     });
   }
 
-  public async publish(channel: string, msg: unknown, options: PublishOptions): Promise<void> {
+  public async publish(channel: string, msg: PubMsgType, options: SimplePublishOptions): Promise<void> {
     // Fill in default options
     options.timestamp = options.timestamp || Date.now();
     options.messageId = options.messageId || uuid.v4();
@@ -374,6 +387,7 @@ export class SimplePubSubAmqp
             } else {
               // If we return false, then the buffer is full. Try again after the 'drain' event
               this.ch!.once('drain', () => publish());
+              return;
             }
           } catch (e) {
             // If we caught an error, then call "tryAgain" to re-estabslish the connection and then try the publish again
@@ -453,19 +467,75 @@ export class SimplePubSubAmqp
  *
  * Following is an abstract adapter class allowing projects to define their message types more
  * specifically without having to do much work.
+ *
+ * You will generally extend this class and add `publish` and `subscribe` methods to accommodate
+ * your desired pub-sub interface. These methods should use the underlying SimplePubSubAmqp class
+ * provided by `this.driver` to do their actual work.
+ *
+ * @example
+ *
+ * ```ts
+ * type MyActions = 'create' | 'update' | 'delete';
+ *
+ * type FooTypes = 'one' | 'two' | 'three';
+ * type FooMsgs =
+ *   | { domain: 'foo'; action: MyActions; resourceType: FooTypes; data: { foo: string } };
+ *
+ * type BarTypes = 'four' | 'five' | 'six';
+ * type BarMsgs =
+ *   | { domain: 'bar'; action: MyActions; resourceType: BarTypes; data: { bar: number } };
+ *
+ * type BazTypes = 'seven' | 'eight' | 'nine';
+ * type BazMsgs =
+ *   | { domain: 'baz'; action: MyActions; resourceType: BazTypes; data: { baz: boolean } };
+ *
+ * type MyMsgs = FooMsgs | BarMsgs | BazMsgs;
+ *
+ * // With this class, we greatly simplify and make more specific our pub-sub interface. We can do this because we're
+ * // taking certain values (like the channel) up front (say, because you have only one exchange that you use for
+ * // all MQ communication), and because we've defined our message types in a way that allows us to auto-generate
+ * // publishing information about them (specifically, the routingKey).
+ * //
+ * // Now our publishing flow is greatly simplified and our subscription handlers can focus on simply processing the
+ * // incoming data.
+ * class MyFooPubSub extends AbstractPubSubAmqp<FooMsgs> {
+ *   public constructor(protected channel: string, config: SimpleAmqpConfig, log: SimpleLoggerInterface, deps?: { retry?: Retry}) {
+ *     super(config, log, deps);
+ *   }
+ *
+ *   // Subscriptions have to handle messages from any domain, so the handler accepts messages of all our message types.
+ *   public async subscribe(keys: Array<string>, handler: (msg: MyMsgs, log: SimpleLoggerInterface) => Promise<boolean>) {
+ *     return this.driver.subscribe(
+ *       { [this.channel]: keys },
+ *       (msg, log) => {
+ *         // Retry logic is already handled by our driver, so we just need to translate the message here
+ *         const m: MyMsgs = JSON.parse(msg.content.toString('utf8'));
+ *         return handler(m, log);
+ *       },
+ *       { queue: { name: 'foo-queue' } }
+ *     );
+ *   }
+ *
+ *   // However, you can only publish FooMsgs
+ *   public async publish(msg: FooMsgs) {
+ *     return this.driver.publish(this.channel, msg, { routingKey: `${msg.domain}.${msg.action}.${msg.resourceType}` });
+ *   }
+ * }
+ *
+ * ```
  */
-export abstract class AbstractPubSubAmqp {
-  private _driver: SimplePubSubAmqp;
+export abstract class AbstractPubSubAmqp<PubMsgType = unknown> {
+  private _driver: SimplePubSubAmqp<PubMsgType>;
 
   public constructor(
     protected config: SimpleAmqpConfig,
     protected log: SimpleLoggerInterface,
     deps?: {
-      backoff?: Backoff;
+      retry?: Retry;
       amqpConnect?: (url: string | SimpleAmqpConfig, socketOptions?: any) => Promise<SimpleAmqpConnection>;
     },
   ) {
-    this._driver = new SimplePubSubAmqp(config, log, deps);
+    this._driver = new SimplePubSubAmqp<PubMsgType>(config, log, deps);
   }
 
   protected get driver() {
