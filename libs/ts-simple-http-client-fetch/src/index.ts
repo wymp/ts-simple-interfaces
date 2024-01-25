@@ -4,11 +4,7 @@ import {
   SimpleHttpClientInterface,
   SimpleLoggerInterface,
 } from '@wymp/ts-simple-interfaces';
-import {
-  HttpErrorStatuses,
-  HttpStatusCodes,
-  SimpleHttpClientRequestError,
-} from '@wymp/ts-simple-interfaces/src/errors';
+import { Errors } from '@wymp/ts-simple-interfaces';
 
 /** Request config composed of both SimpleHttpClientRequestConfig and any additions that are fetch-specific */
 export interface SimpleFetchRequestConfig extends SimpleHttpClientRequestConfig {
@@ -154,10 +150,10 @@ export class SimpleHttpClientFetch implements SimpleHttpClientInterface {
             : null
         : null;
       if (errorData) {
-        throw SimpleHttpClientRequestError.fromJSON(errorData, res);
+        throw Errors.SimpleHttpClientRequestError.fromJSON(errorData, res);
       } else {
-        const status = <HttpStatusCodes>res.status;
-        throw new SimpleHttpClientRequestError(status, `${status} ${HttpErrorStatuses[status]}`, { res });
+        const status = <Errors.HttpStatusCodes>res.status;
+        throw new Errors.SimpleHttpClientRequestError(status, `${status} ${Errors.HttpErrorStatuses[status]}`, { res });
       }
     }
 
